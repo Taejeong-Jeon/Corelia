@@ -621,18 +621,6 @@
                 currentYear--;
             }
             
-            // 2030년 12월 제한
-            if (currentYear > 2030 || (currentYear === 2030 && currentMonth > 12)) {
-                currentYear = 2030;
-                currentMonth = 12;
-            }
-            
-            // 2025년 10월 제한
-            if (currentYear < 2025 || (currentYear === 2025 && currentMonth < 10)) {
-                currentYear = 2025;
-                currentMonth = 10;
-            }
-            
             updateMonthDisplay();
             updateDashboard();
         }
