@@ -18,9 +18,16 @@
             
             <ul class="nav-menu">
                 <li class="nav-item">
-                    <a href="#" class="nav-link active" onclick="showSection('ai-tools')">
+                    <a href="#" class="nav-link active" onclick="showSection('main')">
+                        <span class="nav-icon">🏠</span>
+                        Corelia
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" onclick="toggleSubmenu('ai-tools')">
                         <span class="nav-icon">🤖</span>
                         AI 활용하기
+                        <span class="submenu-arrow">▼</span>
                     </a>
                     <ul class="submenu" id="ai-submenu">
                         <li><a href="https://chatgpt.com/g/g-p-68a81e622c848191bfc6f52f5da56531-sosyeol/project" target="_blank">소설 만들기</a></li>
@@ -40,14 +47,25 @@
         <!-- 메인 콘텐츠 영역 -->
         <main class="main-content">
             <div class="content-header">
-                <h2 id="page-title">AI 활용하기</h2>
-                <p id="page-subtitle">Corelia의 AI 도구들을 활용해보세요</p>
+                <h2 id="page-title">Corelia</h2>
+                <p id="page-subtitle">Core + Intelligence</p>
             </div>
 
-            <div class="content-body" id="ai-tools">
+            <!-- 메인 화면 -->
+            <div class="content-body" id="main">
+                <div class="main-welcome">
+                    <div class="main-logo">
+                        <h1>Corelia</h1>
+                        <p>Core + Intelligence</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI 활용하기 화면 -->
+            <div class="content-body hidden" id="ai-tools">
                 <div class="welcome-section">
-                    <h3>Corelia에 오신 것을 환영합니다</h3>
-                    <p>AI 핵심 기술로 더 스마트한 작업을 경험해보세요</p>
+                    <h3>AI 활용하기</h3>
+                    <p>Corelia의 AI 도구들을 활용해보세요</p>
                 </div>
 
                 <div class="ai-tools-grid">
@@ -99,12 +117,35 @@
             
             // 페이지 제목 업데이트
             const titles = {
+                'main': { title: 'Corelia', subtitle: 'Core + Intelligence' },
                 'ai-tools': { title: 'AI 활용하기', subtitle: 'Corelia의 AI 도구들을 활용해보세요' },
                 'ms': { title: 'MS', subtitle: '게임 관련 콘텐츠가 준비 중입니다' }
             };
             
             document.getElementById('page-title').textContent = titles[sectionId].title;
             document.getElementById('page-subtitle').textContent = titles[sectionId].subtitle;
+        }
+
+        function toggleSubmenu(menuId) {
+            const submenu = document.getElementById(menuId + '-submenu');
+            const arrow = event.target.querySelector('.submenu-arrow');
+            
+            if (submenu.classList.contains('active')) {
+                submenu.classList.remove('active');
+                arrow.textContent = '▼';
+            } else {
+                // 다른 서브메뉴들 닫기
+                document.querySelectorAll('.submenu').forEach(menu => {
+                    menu.classList.remove('active');
+                });
+                document.querySelectorAll('.submenu-arrow').forEach(arrow => {
+                    arrow.textContent = '▼';
+                });
+                
+                // 현재 서브메뉴 열기
+                submenu.classList.add('active');
+                arrow.textContent = '▲';
+            }
         }
     </script>
 </body>
