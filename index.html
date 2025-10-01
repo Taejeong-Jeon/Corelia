@@ -123,11 +123,11 @@
             <!-- MS 가계부 섹션 -->
             <div class="content-body hidden" id="ms-account">
                 
-                <!-- 연간 수익 그래프 -->
-                <div class="annual-chart-section">
+                <!-- 연간 수익 현황 -->
+                <div class="annual-list-section">
                     <h3>연간 수익 현황</h3>
-                    <div class="chart-container">
-                        <canvas id="annualChart" width="800" height="300"></canvas>
+                    <div id="annual-list-container">
+                        <!-- 연간 수익 리스트가 여기에 표시됩니다 -->
                     </div>
                 </div>
 
@@ -226,8 +226,23 @@
                 <!-- 거래 내역 -->
                 <div class="transaction-list">
                     <h3>거래 내역</h3>
-                    <div id="transaction-list-container">
-                        <!-- 거래 내역이 여기에 리스트로 표시됩니다 -->
+                    <div id="transaction-table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>일자</th>
+                                    <th>유형</th>
+                                    <th>금액/메소</th>
+                                    <th>시세</th>
+                                    <th>결과</th>
+                                    <th>메모</th>
+                                    <th>액션</th>
+                                </tr>
+                            </thead>
+                            <tbody id="transaction-tbody">
+                                <!-- 거래 내역이 여기에 표시됩니다 -->
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -437,22 +452,15 @@
             document.getElementById('sell-meso').required = false;
         }
 
-        // 연간 수익 그래프 그리기
-        function drawAnnualChart() {
-            const canvas = document.getElementById('annualChart');
-            if (!canvas) return;
+        // 연간 수익 리스트 그리기
+        function drawAnnualList() {
+            const container = document.getElementById('annual-list-container');
+            container.innerHTML = '';
             
-            const ctx = canvas.getContext('2d');
-            const width = canvas.width;
-            const height = canvas.height;
-            
-            // 캔버스 초기화
-            ctx.clearRect(0, 0, width, height);
-            
-            // 연간 데이터 계산
             const currentYear = new Date().getFullYear();
             const monthlyData = [];
             
+            // 12개월 데이터 계산
             for (let month = 1; month <= 12; month++) {
                 const monthTransactions = transactions.filter(t => {
                     const date = new Date(t.date);
@@ -468,91 +476,50 @@
                     .reduce((sum, t) => sum + (parseInt(t.salesAmount) || 0), 0);
                 
                 const profitLoss = totalSales - totalCharge;
-                monthlyData.push(profitLoss);
-            }
-            
-            // 그래프 그리기
-            const margin = 60;
-            const chartWidth = width - 2 * margin;
-            const chartHeight = height - 2 * margin;
-            
-            // 배경 그리기
-            ctx.fillStyle = '#f8f9fa';
-            ctx.fillRect(margin, margin, chartWidth, chartHeight);
-            
-            // 격자 그리기
-            ctx.strokeStyle = '#e9ecef';
-            ctx.lineWidth = 1;
-            
-            // 수평 격자
-            for (let i = 0; i <= 10; i++) {
-                const y = margin + (chartHeight / 10) * i;
-                ctx.beginPath();
-                ctx.moveTo(margin, y);
-                ctx.lineTo(margin + chartWidth, y);
-                ctx.stroke();
-            }
-            
-            // 수직 격자
-            for (let i = 0; i <= 12; i++) {
-                const x = margin + (chartWidth / 12) * i;
-                ctx.beginPath();
-                ctx.moveTo(x, margin);
-                ctx.lineTo(x, margin + chartHeight);
-                ctx.stroke();
-            }
-            
-            // 0선 그리기
-            const zeroY = margin + chartHeight / 2;
-            ctx.strokeStyle = '#6c757d';
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            ctx.moveTo(margin, zeroY);
-            ctx.lineTo(margin + chartWidth, zeroY);
-            ctx.stroke();
-            
-            // 데이터 포인트 그리기
-            const maxValue = Math.max(...monthlyData.map(Math.abs));
-            const scale = maxValue > 0 ? (chartHeight / 2) / maxValue : 1;
-            
-            ctx.strokeStyle = '#007bff';
-            ctx.lineWidth = 3;
-            ctx.beginPath();
-            
-            monthlyData.forEach((value, index) => {
-                const x = margin + (chartWidth / 12) * (index + 0.5);
-                const y = zeroY - (value * scale);
                 
-                if (index === 0) {
-                    ctx.moveTo(x, y);
-                } else {
-                    ctx.lineTo(x, y);
-                }
+                monthlyData.push({
+                    month: month,
+                    charge: totalCharge,
+                    sales: totalSales,
+                    profitLoss: profitLoss,
+                    transactionCount: monthTransactions.length
+                });
+            }
+            
+            // 월별 리스트 아이템 생성
+            monthlyData.forEach(data => {
+                const monthItem = document.createElement('div');
+                monthItem.className = 'annual-month-item';
                 
-                // 포인트 그리기
-                ctx.fillStyle = value >= 0 ? '#28a745' : '#dc3545';
-                ctx.beginPath();
-                ctx.arc(x, y, 4, 0, 2 * Math.PI);
-                ctx.fill();
+                const profitColor = data.profitLoss >= 0 ? '#28a745' : '#dc3545';
+                const profitIcon = data.profitLoss >= 0 ? '📈' : '📉';
+                
+                monthItem.innerHTML = `
+                    <div class="month-header">
+                        <div class="month-name">${data.month}월</div>
+                        <div class="month-summary">
+                            <span class="transaction-count">${data.transactionCount}건</span>
+                        </div>
+                    </div>
+                    <div class="month-details">
+                        <div class="detail-row">
+                            <span class="detail-label">충전:</span>
+                            <span class="detail-value">${data.charge.toLocaleString()}원</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">판매:</span>
+                            <span class="detail-value">${data.sales.toLocaleString()}원</span>
+                        </div>
+                        <div class="detail-row profit-row">
+                            <span class="detail-label">손익:</span>
+                            <span class="detail-value" style="color: ${profitColor}">
+                                ${profitIcon} ${data.profitLoss >= 0 ? '+' : ''}${data.profitLoss.toLocaleString()}원
+                            </span>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(monthItem);
             });
-            
-            ctx.stroke();
-            
-            // 월 라벨 그리기
-            ctx.fillStyle = '#6c757d';
-            ctx.font = '12px Arial';
-            ctx.textAlign = 'center';
-            
-            for (let i = 0; i < 12; i++) {
-                const x = margin + (chartWidth / 12) * (i + 0.5);
-                const y = height - 20;
-                ctx.fillText(`${i + 1}월`, x, y);
-            }
-            
-            // Y축 라벨 그리기
-            ctx.textAlign = 'right';
-            ctx.fillText('수익', 20, margin + 10);
-            ctx.fillText('손실', 20, height - margin - 10);
         }
 
         // MS 가계부 초기화
@@ -732,7 +699,7 @@
             }
             
             updateTransactionTable();
-            drawAnnualChart();
+            drawAnnualList();
         }
 
         // 거래 제출 처리
@@ -775,32 +742,25 @@
             document.getElementById('transaction-date').value = new Date().toISOString().split('T')[0];
         }
 
-        // 거래 리스트 업데이트
+        // 거래 테이블 업데이트
         function updateTransactionTable() {
-            const container = document.getElementById('transaction-list-container');
-            container.innerHTML = '';
+            const tbody = document.getElementById('transaction-tbody');
+            tbody.innerHTML = '';
             
             const monthTransactions = transactions.filter(t => {
                 const date = new Date(t.date);
                 return date.getFullYear() === currentYear && date.getMonth() + 1 === currentMonth;
             });
             
-            if (monthTransactions.length === 0) {
-                container.innerHTML = '<div class="empty-state">이번 달 거래 내역이 없습니다.</div>';
-                return;
-            }
-            
             monthTransactions.forEach(transaction => {
-                const transactionItem = document.createElement('div');
-                transactionItem.className = 'transaction-item';
-                
+                const row = document.createElement('tr');
                 let typeIcon, typeText, amountText, rateText, resultText, resultColor;
                 
                 if (transaction.type === 'charge') {
                     typeIcon = '💰';
                     typeText = '충전';
                     amountText = `${parseInt(transaction.chargeAmount).toLocaleString()}원`;
-                    rateText = '';
+                    rateText = '-';
                     resultText = '현금 충전';
                     resultColor = '#6c757d';
                 } else if (transaction.type === 'convert') {
@@ -819,39 +779,18 @@
                     resultColor = '#28a745';
                 }
                 
-                transactionItem.innerHTML = `
-                    <div class="transaction-header">
-                        <div class="transaction-type">
-                            <span class="type-icon">${typeIcon}</span>
-                            <span class="type-text">${typeText}</span>
-                        </div>
-                        <div class="transaction-date">${transaction.date}</div>
+                row.innerHTML = `
+                    <td>${transaction.date}</td>
+                    <td><span class="type-icon">${typeIcon}</span> ${typeText}</td>
+                    <td>${amountText}</td>
+                    <td>${rateText}</td>
+                    <td style="color: ${resultColor}">${resultText}</td>
+                    <td>${transaction.memo || '-'}</td>
+                    <td>
                         <button onclick="deleteTransaction(${transaction.id})" class="delete-btn">삭제</button>
-                    </div>
-                    <div class="transaction-details">
-                        <div class="detail-item">
-                            <span class="detail-label">금액/메소:</span>
-                            <span class="detail-value">${amountText}</span>
-                        </div>
-                        ${rateText ? `
-                        <div class="detail-item">
-                            <span class="detail-label">시세:</span>
-                            <span class="detail-value">${rateText}</span>
-                        </div>
-                        ` : ''}
-                        <div class="detail-item">
-                            <span class="detail-label">결과:</span>
-                            <span class="detail-value" style="color: ${resultColor}">${resultText}</span>
-                        </div>
-                        ${transaction.memo ? `
-                        <div class="detail-item">
-                            <span class="detail-label">메모:</span>
-                            <span class="detail-value">${transaction.memo}</span>
-                        </div>
-                        ` : ''}
-                    </div>
+                    </td>
                 `;
-                container.appendChild(transactionItem);
+                tbody.appendChild(row);
             });
         }
 
