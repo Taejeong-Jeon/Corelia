@@ -97,23 +97,40 @@
 
             <!-- MS 홈 섹션 -->
             <div class="content-body hidden" id="ms">
-                <div class="welcome-section">
-                    <h3>MS</h3>
-                    <p>메이플스토리 관련 도구들을 활용해보세요</p>
-                </div>
-                <div class="section-content">
-                    <div class="card">
-                        <h3>🎮 MS 가계부</h3>
-                        <p>메이플스토리 수익과 지출을 관리하고 월별 통계를 확인하세요.</p>
-                        <button class="btn btn-primary" onclick="showSection('ms-account'); updateURL('MS-ACCOUNT'); return false;">
-                            가계부 열기
-                        </button>
+                <div class="ai-tools-grid">
+                    <div class="tool-card">
+                        <div class="tool-icon">💰</div>
+                        <h4>MS 가계부</h4>
+                        <p>메이플스토리 수익과 지출을 관리하고 월별 통계를 확인하세요</p>
+                        <button class="tool-btn" onclick="showSection('ms-account'); updateURL('MS-ACCOUNT'); return false;">시작하기</button>
+                    </div>
+                    
+                    <div class="tool-card">
+                        <div class="tool-icon">📊</div>
+                        <h4>MS 통계</h4>
+                        <p>메이플스토리 거래 통계와 수익 분석을 확인하세요</p>
+                        <button class="tool-btn" onclick="alert('준비 중입니다!')">시작하기</button>
+                    </div>
+                    
+                    <div class="tool-card">
+                        <div class="tool-icon">🎯</div>
+                        <h4>MS 목표</h4>
+                        <p>수익 목표 설정과 달성 현황을 관리하세요</p>
+                        <button class="tool-btn" onclick="alert('준비 중입니다!')">시작하기</button>
                     </div>
                 </div>
             </div>
 
             <!-- MS 가계부 섹션 -->
             <div class="content-body hidden" id="ms-account">
+                
+                <!-- 연간 수익 그래프 -->
+                <div class="annual-chart-section">
+                    <h3>연간 수익 현황</h3>
+                    <div class="chart-container">
+                        <canvas id="annualChart" width="800" height="300"></canvas>
+                    </div>
+                </div>
 
                 <!-- 월별 대시보드 -->
                 <div class="dashboard-section">
@@ -436,6 +453,124 @@
             document.getElementById('sell-meso').required = false;
         }
 
+        // 연간 수익 그래프 그리기
+        function drawAnnualChart() {
+            const canvas = document.getElementById('annualChart');
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+            
+            // 캔버스 초기화
+            ctx.clearRect(0, 0, width, height);
+            
+            // 연간 데이터 계산
+            const currentYear = new Date().getFullYear();
+            const monthlyData = [];
+            
+            for (let month = 1; month <= 12; month++) {
+                const monthTransactions = transactions.filter(t => {
+                    const date = new Date(t.date);
+                    return date.getFullYear() === currentYear && date.getMonth() + 1 === month;
+                });
+                
+                const totalCharge = monthTransactions
+                    .filter(t => t.type === 'charge')
+                    .reduce((sum, t) => sum + (parseInt(t.chargeAmount) || 0), 0);
+                
+                const totalSales = monthTransactions
+                    .filter(t => t.type === 'sell')
+                    .reduce((sum, t) => sum + (parseInt(t.salesAmount) || 0), 0);
+                
+                const profitLoss = totalSales - totalCharge;
+                monthlyData.push(profitLoss);
+            }
+            
+            // 그래프 그리기
+            const margin = 60;
+            const chartWidth = width - 2 * margin;
+            const chartHeight = height - 2 * margin;
+            
+            // 배경 그리기
+            ctx.fillStyle = '#f8f9fa';
+            ctx.fillRect(margin, margin, chartWidth, chartHeight);
+            
+            // 격자 그리기
+            ctx.strokeStyle = '#e9ecef';
+            ctx.lineWidth = 1;
+            
+            // 수평 격자
+            for (let i = 0; i <= 10; i++) {
+                const y = margin + (chartHeight / 10) * i;
+                ctx.beginPath();
+                ctx.moveTo(margin, y);
+                ctx.lineTo(margin + chartWidth, y);
+                ctx.stroke();
+            }
+            
+            // 수직 격자
+            for (let i = 0; i <= 12; i++) {
+                const x = margin + (chartWidth / 12) * i;
+                ctx.beginPath();
+                ctx.moveTo(x, margin);
+                ctx.lineTo(x, margin + chartHeight);
+                ctx.stroke();
+            }
+            
+            // 0선 그리기
+            const zeroY = margin + chartHeight / 2;
+            ctx.strokeStyle = '#6c757d';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(margin, zeroY);
+            ctx.lineTo(margin + chartWidth, zeroY);
+            ctx.stroke();
+            
+            // 데이터 포인트 그리기
+            const maxValue = Math.max(...monthlyData.map(Math.abs));
+            const scale = maxValue > 0 ? (chartHeight / 2) / maxValue : 1;
+            
+            ctx.strokeStyle = '#007bff';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            
+            monthlyData.forEach((value, index) => {
+                const x = margin + (chartWidth / 12) * (index + 0.5);
+                const y = zeroY - (value * scale);
+                
+                if (index === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+                
+                // 포인트 그리기
+                ctx.fillStyle = value >= 0 ? '#28a745' : '#dc3545';
+                ctx.beginPath();
+                ctx.arc(x, y, 4, 0, 2 * Math.PI);
+                ctx.fill();
+            });
+            
+            ctx.stroke();
+            
+            // 월 라벨 그리기
+            ctx.fillStyle = '#6c757d';
+            ctx.font = '12px Arial';
+            ctx.textAlign = 'center';
+            
+            for (let i = 0; i < 12; i++) {
+                const x = margin + (chartWidth / 12) * (i + 0.5);
+                const y = height - 20;
+                ctx.fillText(`${i + 1}월`, x, y);
+            }
+            
+            // Y축 라벨 그리기
+            ctx.textAlign = 'right';
+            ctx.fillText('수익', 20, margin + 10);
+            ctx.fillText('손실', 20, height - margin - 10);
+        }
+
         // MS 가계부 초기화
         function initializeMSAccount() {
             // 오늘 날짜를 기본값으로 설정
@@ -613,6 +748,7 @@
             }
             
             updateTransactionTable();
+            drawAnnualChart();
         }
 
         // 거래 제출 처리
