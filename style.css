@@ -65,6 +65,30 @@ section p {
     font-size: 1.1em;
 }
 
+/* ChatGPT 버튼 스타일 */
+#chatgpt-btn {
+    background-color: #10a37f;
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    font-size: 1.2em;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+#chatgpt-btn:hover {
+    background-color: #0d8a6b;
+}
+
+/* 채팅 위젯 스타일 */
+#chat-container {
+    border: 2px solid #007bff;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-top: 20px;
+}
+
 /* 푸터 */
 footer {
     text-align: center;

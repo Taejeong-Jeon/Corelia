@@ -14,22 +14,23 @@
         </header>
         
         <main>
-            <section class="welcome">
-                <h2>안녕하세요!</h2>
-                <p>JJ의 홈페이지에 오신 것을 환영합니다.</p>
-                <p>이곳은 제가 만든 첫 번째 홈페이지입니다.</p>
+            <section class="chatgpt-section">
+                <h2>ChatGPT와 대화하기</h2>
+                <p>아래 버튼을 클릭하면 ChatGPT와 대화할 수 있습니다!</p>
+                <button id="chatgpt-btn" onclick="openChatGPT()">ChatGPT 열기</button>
             </section>
             
-            <section class="about">
-                <h2>소개</h2>
-                <p>저는 JJ입니다. 웹 개발을 배우고 있는 중입니다.</p>
-                <p>앞으로 더 많은 기능들을 추가해 나갈 예정입니다.</p>
-            </section>
-            
-            <section class="contact">
-                <h2>연락처</h2>
-                <p>이메일: jj@example.com</p>
-                <p>GitHub: github.com/jj</p>
+            <section class="chat-widget">
+                <h2>인라인 채팅</h2>
+                <div id="chat-container">
+                    <iframe 
+                        src="https://chatgpt.com/embed" 
+                        width="100%" 
+                        height="500px"
+                        frameborder="0"
+                        title="ChatGPT Widget">
+                    </iframe>
+                </div>
             </section>
         </main>
         
@@ -37,6 +38,12 @@
             <p>&copy; 2024 JJ's Homepage. All rights reserved.</p>
         </footer>
     </div>
+    
+    <script>
+        function openChatGPT() {
+            window.open('https://chatgpt.com', '_blank');
+        }
+    </script>
 </body>
 </html>
 
