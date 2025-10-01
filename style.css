@@ -37,6 +37,16 @@ body {
     border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 }
 
+.logo-link {
+    text-decoration: none;
+    display: block;
+    transition: transform 0.2s ease;
+}
+
+.logo-link:hover {
+    transform: scale(1.05);
+}
+
 .logo {
     font-size: 2rem;
     font-weight: 700;
