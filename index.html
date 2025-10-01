@@ -614,15 +614,20 @@
         async function deleteTransaction(id) {
             if (confirm('정말 삭제하시겠습니까?')) {
                 try {
-                    // Google Sheets에서 삭제 (나중에 구현)
-                    // 지금은 로컬에서만 삭제
+                    // 로컬에서 삭제
                     transactions = transactions.filter(t => t.id !== id);
+                    
+                    // 로컬 스토리지에 저장
+                    localStorage.setItem('ms-transactions', JSON.stringify(transactions));
+                    
+                    // 대시보드 업데이트
                     updateDashboard();
                     
-                    // TODO: Google Sheets API에 삭제 요청 추가
-                    console.log('삭제된 ID:', id);
+                    console.log('삭제 완료:', id);
+                    alert('거래가 삭제되었습니다!');
                 } catch (error) {
                     console.error('삭제 실패:', error);
+                    alert('삭제 중 오류가 발생했습니다.');
                 }
             }
         }
