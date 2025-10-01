@@ -553,8 +553,8 @@ body {
     }
 }
 
-/* 연간 수익 리스트 스타일 */
-.annual-list-section {
+/* 총 합산 요약 스타일 */
+.total-summary-section {
     background: white;
     border-radius: 12px;
     padding: 24px;
@@ -562,72 +562,49 @@ body {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.annual-list-section h3 {
+.total-summary-section h3 {
     margin: 0 0 20px 0;
     color: #2c3e50;
     font-size: 20px;
     font-weight: 600;
 }
 
-.annual-month-item {
+.summary-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+}
+
+.summary-card {
     background: #f8f9fa;
-    border-radius: 8px;
-    padding: 16px;
-    margin-bottom: 12px;
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
     border-left: 4px solid #007bff;
 }
 
-.month-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 12px;
+.summary-icon {
+    font-size: 32px;
+    opacity: 0.8;
 }
 
-.month-name {
-    font-weight: 600;
-    color: #2c3e50;
-    font-size: 16px;
+.summary-content {
+    flex: 1;
 }
 
-.transaction-count {
-    background: #007bff;
-    color: white;
-    padding: 4px 8px;
-    border-radius: 12px;
-    font-size: 12px;
-    font-weight: 500;
-}
-
-.month-details {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 8px;
-}
-
-.detail-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.detail-label {
-    font-size: 12px;
+.summary-label {
+    font-size: 14px;
     color: #6c757d;
     font-weight: 500;
+    margin-bottom: 4px;
 }
 
-.detail-value {
-    font-size: 14px;
+.summary-value {
+    font-size: 18px;
     color: #2c3e50;
-    font-weight: 600;
-}
-
-.profit-row {
-    grid-column: 1 / -1;
-    border-top: 1px solid #dee2e6;
-    padding-top: 8px;
-    margin-top: 8px;
+    font-weight: 700;
 }
 
 /* 거래 테이블 아이콘 스타일 */
@@ -637,13 +614,19 @@ body {
 }
 
 @media (max-width: 768px) {
-    .month-details {
+    .summary-cards {
         grid-template-columns: 1fr;
     }
     
-    .detail-row {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 4px;
+    .summary-card {
+        padding: 16px;
+    }
+    
+    .summary-icon {
+        font-size: 24px;
+    }
+    
+    .summary-value {
+        font-size: 16px;
     }
 }

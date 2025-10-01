@@ -123,11 +123,31 @@
             <!-- MS 가계부 섹션 -->
             <div class="content-body hidden" id="ms-account">
                 
-                <!-- 연간 수익 현황 -->
-                <div class="annual-list-section">
-                    <h3>연간 수익 현황</h3>
-                    <div id="annual-list-container">
-                        <!-- 연간 수익 리스트가 여기에 표시됩니다 -->
+                <!-- 총 합산 요약 -->
+                <div class="total-summary-section">
+                    <h3>총 합산</h3>
+                    <div class="summary-cards">
+                        <div class="summary-card">
+                            <div class="summary-icon">💰</div>
+                            <div class="summary-content">
+                                <div class="summary-label">총 충전</div>
+                                <div class="summary-value" id="total-charge-summary">0원</div>
+                            </div>
+                        </div>
+                        <div class="summary-card">
+                            <div class="summary-icon">💸</div>
+                            <div class="summary-content">
+                                <div class="summary-label">총 판매</div>
+                                <div class="summary-value" id="total-sales-summary">0원</div>
+                            </div>
+                        </div>
+                        <div class="summary-card">
+                            <div class="summary-icon">📊</div>
+                            <div class="summary-content">
+                                <div class="summary-label">총 손익</div>
+                                <div class="summary-value" id="total-profit-summary">0원</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -452,74 +472,34 @@
             document.getElementById('sell-meso').required = false;
         }
 
-        // 연간 수익 리스트 그리기
-        function drawAnnualList() {
-            const container = document.getElementById('annual-list-container');
-            container.innerHTML = '';
+        // 총 합산 업데이트
+        function updateTotalSummary() {
+            // 전체 거래 데이터 계산 (월별 제한 없음)
+            const totalCharge = transactions
+                .filter(t => t.type === 'charge')
+                .reduce((sum, t) => sum + (parseInt(t.chargeAmount) || 0), 0);
             
-            const currentYear = new Date().getFullYear();
-            const monthlyData = [];
+            const totalSales = transactions
+                .filter(t => t.type === 'sell')
+                .reduce((sum, t) => sum + (parseInt(t.salesAmount) || 0), 0);
             
-            // 12개월 데이터 계산
-            for (let month = 1; month <= 12; month++) {
-                const monthTransactions = transactions.filter(t => {
-                    const date = new Date(t.date);
-                    return date.getFullYear() === currentYear && date.getMonth() + 1 === month;
-                });
-                
-                const totalCharge = monthTransactions
-                    .filter(t => t.type === 'charge')
-                    .reduce((sum, t) => sum + (parseInt(t.chargeAmount) || 0), 0);
-                
-                const totalSales = monthTransactions
-                    .filter(t => t.type === 'sell')
-                    .reduce((sum, t) => sum + (parseInt(t.salesAmount) || 0), 0);
-                
-                const profitLoss = totalSales - totalCharge;
-                
-                monthlyData.push({
-                    month: month,
-                    charge: totalCharge,
-                    sales: totalSales,
-                    profitLoss: profitLoss,
-                    transactionCount: monthTransactions.length
-                });
+            const totalProfit = totalSales - totalCharge;
+            
+            // 총합 요약 업데이트
+            document.getElementById('total-charge-summary').textContent = `${totalCharge.toLocaleString()}원`;
+            document.getElementById('total-sales-summary').textContent = `${totalSales.toLocaleString()}원`;
+            
+            const profitElement = document.getElementById('total-profit-summary');
+            profitElement.textContent = `${totalProfit >= 0 ? '+' : ''}${totalProfit.toLocaleString()}원`;
+            
+            // 손익에 따른 색상 변경
+            if (totalProfit > 0) {
+                profitElement.style.color = '#28a745'; // 초록색 (수익)
+            } else if (totalProfit < 0) {
+                profitElement.style.color = '#dc3545'; // 빨간색 (손해)
+            } else {
+                profitElement.style.color = '#6c757d'; // 회색 (손익 없음)
             }
-            
-            // 월별 리스트 아이템 생성
-            monthlyData.forEach(data => {
-                const monthItem = document.createElement('div');
-                monthItem.className = 'annual-month-item';
-                
-                const profitColor = data.profitLoss >= 0 ? '#28a745' : '#dc3545';
-                const profitIcon = data.profitLoss >= 0 ? '📈' : '📉';
-                
-                monthItem.innerHTML = `
-                    <div class="month-header">
-                        <div class="month-name">${data.month}월</div>
-                        <div class="month-summary">
-                            <span class="transaction-count">${data.transactionCount}건</span>
-                        </div>
-                    </div>
-                    <div class="month-details">
-                        <div class="detail-row">
-                            <span class="detail-label">충전:</span>
-                            <span class="detail-value">${data.charge.toLocaleString()}원</span>
-                        </div>
-                        <div class="detail-row">
-                            <span class="detail-label">판매:</span>
-                            <span class="detail-value">${data.sales.toLocaleString()}원</span>
-                        </div>
-                        <div class="detail-row profit-row">
-                            <span class="detail-label">손익:</span>
-                            <span class="detail-value" style="color: ${profitColor}">
-                                ${profitIcon} ${data.profitLoss >= 0 ? '+' : ''}${data.profitLoss.toLocaleString()}원
-                            </span>
-                        </div>
-                    </div>
-                `;
-                container.appendChild(monthItem);
-            });
         }
 
         // MS 가계부 초기화
@@ -699,7 +679,7 @@
             }
             
             updateTransactionTable();
-            drawAnnualList();
+            updateTotalSummary();
         }
 
         // 거래 제출 처리
