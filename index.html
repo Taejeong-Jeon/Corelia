@@ -360,6 +360,18 @@
 
         // 페이지 로드 시 초기화
         document.addEventListener('DOMContentLoaded', function() {
+            // 페이지 로드 시 로컬 스토리지에서 데이터 로드
+            const localData = localStorage.getItem('ms-transactions');
+            if (localData) {
+                try {
+                    transactions = JSON.parse(localData);
+                    console.log('페이지 로드 시 로컬 데이터 로드:', transactions);
+                } catch (error) {
+                    console.error('로컬 데이터 파싱 실패:', error);
+                    transactions = [];
+                }
+            }
+            
             initializePage();
             initializeMSAccount();
         });
@@ -378,7 +390,20 @@
             // 폼 제출 이벤트 리스너
             document.getElementById('transaction-form').addEventListener('submit', handleTransactionSubmit);
             
-            // Google Sheets에서 데이터 로드
+            // 먼저 로컬 스토리지에서 데이터 로드
+            const localData = localStorage.getItem('ms-transactions');
+            if (localData) {
+                try {
+                    transactions = JSON.parse(localData);
+                    console.log('로컬 데이터 로드 성공:', transactions);
+                    updateDashboard();
+                } catch (error) {
+                    console.error('로컬 데이터 파싱 실패:', error);
+                    transactions = [];
+                }
+            }
+            
+            // Google Sheets에서 데이터 로드 시도
             loadTransactions();
         }
 
