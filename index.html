@@ -32,10 +32,15 @@
                     </ul>
                 </li>
                 <li class="nav-item">
-                    <a href="/Corelia/MS" class="nav-link" onclick="showSection('ms'); updateURL('MS'); return false;">
+                    <a href="#" class="nav-link" onclick="toggleSubmenu('ms'); return false;">
                         <span class="nav-icon">🎮</span>
                         MS
+                        <span class="submenu-arrow">▼</span>
                     </a>
+                    <ul class="submenu" id="ms-submenu">
+                        <li><a href="#" onclick="showSection('ms'); updateURL('MS'); return false;">MS 메인</a></li>
+                        <li><a href="#" onclick="showSection('ms-account'); updateURL('MS-ACCOUNT'); return false;">MS 가계부</a></li>
+                    </ul>
                 </li>
             </ul>
         </nav>
@@ -94,6 +99,98 @@
                     <p>게임 관련 콘텐츠가 준비 중입니다</p>
                 </div>
             </div>
+
+            <!-- MS 가계부 섹션 -->
+            <div class="content-body hidden" id="ms-account">
+                <div class="welcome-section">
+                    <h3>MS 가계부</h3>
+                    <p>메이플스토리 수익 관리 시스템</p>
+                </div>
+
+                <!-- 월별 대시보드 -->
+                <div class="dashboard-section">
+                    <div class="month-selector">
+                        <button onclick="changeMonth(-1)" class="month-btn">◀</button>
+                        <h2 id="current-month">2025년 10월</h2>
+                        <button onclick="changeMonth(1)" class="month-btn">▶</button>
+                    </div>
+                    
+                    <div class="dashboard-cards">
+                        <div class="dashboard-card">
+                            <h4>총 충전금액</h4>
+                            <p id="total-charge">0원</p>
+                        </div>
+                        <div class="dashboard-card">
+                            <h4>총 판매금액</h4>
+                            <p id="total-sales">0원</p>
+                        </div>
+                        <div class="dashboard-card">
+                            <h4>손익</h4>
+                            <p id="profit-loss">0원</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 거래 입력 폼 -->
+                <div class="form-section">
+                    <h3>거래 입력</h3>
+                    <form id="transaction-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>일자</label>
+                                <input type="date" id="transaction-date" required>
+                            </div>
+                            <div class="form-group">
+                                <label>유형</label>
+                                <select id="transaction-type" required>
+                                    <option value="">선택하세요</option>
+                                    <option value="charge">충전</option>
+                                    <option value="sell">판매</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>메포 시세</label>
+                                <input type="number" id="mepo-rate" placeholder="메포 시세 입력">
+                            </div>
+                            <div class="form-group">
+                                <label>물통 시세</label>
+                                <input type="number" id="water-rate" placeholder="물통 시세 입력">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>충전 금액</label>
+                                <input type="number" id="charge-amount" placeholder="충전 금액 입력">
+                            </div>
+                        </div>
+                        <button type="submit" class="submit-btn">저장</button>
+                    </form>
+                </div>
+
+                <!-- 거래 내역 -->
+                <div class="transaction-list">
+                    <h3>거래 내역</h3>
+                    <div id="transaction-table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>일자</th>
+                                    <th>유형</th>
+                                    <th>메포 시세</th>
+                                    <th>물통 시세</th>
+                                    <th>충전 금액</th>
+                                    <th>액션</th>
+                                </tr>
+                            </thead>
+                            <tbody id="transaction-tbody">
+                                <!-- 거래 내역이 여기에 표시됩니다 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
         </main>
     </div>
 
@@ -120,11 +217,13 @@
                 const hash = window.location.hash;
                 if (hash === '#AI') return 'ai-tools';
                 if (hash === '#MS') return 'ms';
+                if (hash === '#MS-ACCOUNT') return 'ms-account';
                 return 'main';
             } else {
                 // 온라인에서는 path 사용
                 const path = window.location.pathname;
                 if (path.includes('/AI')) return 'ai-tools';
+                if (path.includes('/MS-ACCOUNT')) return 'ms-account';
                 if (path.includes('/MS')) return 'ms';
                 return 'main';
             }
@@ -179,7 +278,8 @@
             const titles = {
                 'main': { title: 'Corelia', subtitle: 'Core + Intelligence' },
                 'ai-tools': { title: 'AI 활용하기', subtitle: 'Corelia의 AI 도구들을 활용해보세요' },
-                'ms': { title: 'MS', subtitle: '게임 관련 콘텐츠가 준비 중입니다' }
+                'ms': { title: 'MS', subtitle: '게임 관련 콘텐츠가 준비 중입니다' },
+                'ms-account': { title: 'MS 가계부', subtitle: '메이플스토리 수익 관리 시스템' }
             };
             
             document.getElementById('page-title').textContent = titles[sectionId].title;
@@ -224,7 +324,150 @@
         // 페이지 로드 시 초기화
         document.addEventListener('DOMContentLoaded', function() {
             initializePage();
+            initializeMSAccount();
         });
+
+        // MS 가계부 관련 변수들
+        let currentYear = 2025;
+        let currentMonth = 10;
+        let transactions = [];
+
+        // MS 가계부 초기화
+        function initializeMSAccount() {
+            // 오늘 날짜를 기본값으로 설정
+            document.getElementById('transaction-date').value = new Date().toISOString().split('T')[0];
+            
+            // 폼 제출 이벤트 리스너
+            document.getElementById('transaction-form').addEventListener('submit', handleTransactionSubmit);
+            
+            // 월별 대시보드 업데이트
+            updateDashboard();
+        }
+
+        // 월 변경 함수
+        function changeMonth(direction) {
+            currentMonth += direction;
+            
+            if (currentMonth > 12) {
+                currentMonth = 1;
+                currentYear++;
+            } else if (currentMonth < 1) {
+                currentMonth = 12;
+                currentYear--;
+            }
+            
+            // 2030년 12월 제한
+            if (currentYear > 2030 || (currentYear === 2030 && currentMonth > 12)) {
+                currentYear = 2030;
+                currentMonth = 12;
+            }
+            
+            // 2025년 10월 제한
+            if (currentYear < 2025 || (currentYear === 2025 && currentMonth < 10)) {
+                currentYear = 2025;
+                currentMonth = 10;
+            }
+            
+            updateMonthDisplay();
+            updateDashboard();
+        }
+
+        // 월 표시 업데이트
+        function updateMonthDisplay() {
+            document.getElementById('current-month').textContent = `${currentYear}년 ${currentMonth}월`;
+        }
+
+        // 대시보드 업데이트
+        function updateDashboard() {
+            const monthTransactions = transactions.filter(t => {
+                const date = new Date(t.date);
+                return date.getFullYear() === currentYear && date.getMonth() + 1 === currentMonth;
+            });
+            
+            const totalCharge = monthTransactions
+                .filter(t => t.type === 'charge')
+                .reduce((sum, t) => sum + (parseInt(t.chargeAmount) || 0), 0);
+            
+            const totalSales = monthTransactions
+                .filter(t => t.type === 'sell')
+                .reduce((sum, t) => sum + (parseInt(t.chargeAmount) || 0), 0);
+            
+            const profitLoss = totalSales - totalCharge;
+            
+            document.getElementById('total-charge').textContent = `${totalCharge.toLocaleString()}원`;
+            document.getElementById('total-sales').textContent = `${totalSales.toLocaleString()}원`;
+            
+            const profitLossElement = document.getElementById('profit-loss');
+            profitLossElement.textContent = `${profitLoss.toLocaleString()}원`;
+            
+            // 손익에 따른 색상 변경
+            if (profitLoss > 0) {
+                profitLossElement.style.color = '#007bff'; // 파란색 (수익)
+            } else if (profitLoss < 0) {
+                profitLossElement.style.color = '#dc3545'; // 빨간색 (손해)
+            } else {
+                profitLossElement.style.color = '#6c757d'; // 회색 (손익 없음)
+            }
+            
+            updateTransactionTable();
+        }
+
+        // 거래 제출 처리
+        function handleTransactionSubmit(e) {
+            e.preventDefault();
+            
+            const transaction = {
+                id: Date.now(),
+                date: document.getElementById('transaction-date').value,
+                type: document.getElementById('transaction-type').value,
+                mepoRate: document.getElementById('mepo-rate').value,
+                waterRate: document.getElementById('water-rate').value,
+                chargeAmount: document.getElementById('charge-amount').value
+            };
+            
+            transactions.push(transaction);
+            
+            // 폼 초기화
+            document.getElementById('transaction-form').reset();
+            document.getElementById('transaction-date').value = new Date().toISOString().split('T')[0];
+            
+            // 대시보드 업데이트
+            updateDashboard();
+        }
+
+        // 거래 테이블 업데이트
+        function updateTransactionTable() {
+            const tbody = document.getElementById('transaction-tbody');
+            tbody.innerHTML = '';
+            
+            const monthTransactions = transactions.filter(t => {
+                const date = new Date(t.date);
+                return date.getFullYear() === currentYear && date.getMonth() + 1 === currentMonth;
+            });
+            
+            monthTransactions.forEach(transaction => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${transaction.date}</td>
+                    <td>${transaction.type === 'charge' ? '충전' : '판매'}</td>
+                    <td>${transaction.mepoRate || '-'}</td>
+                    <td>${transaction.waterRate || '-'}</td>
+                    <td>${transaction.chargeAmount ? parseInt(transaction.chargeAmount).toLocaleString() + '원' : '-'}</td>
+                    <td>
+                        <button onclick="deleteTransaction(${transaction.id})" class="delete-btn">삭제</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // 거래 삭제
+        function deleteTransaction(id) {
+            if (confirm('정말 삭제하시겠습니까?')) {
+                transactions = transactions.filter(t => t.id !== id);
+                updateDashboard();
+            }
+        }
     </script>
 </body>
 </html>
