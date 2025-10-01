@@ -12,7 +12,7 @@
         <!-- 좌측 GNB 메뉴 -->
         <nav class="sidebar">
             <div class="sidebar-header">
-                <a href="#" class="logo-link" onclick="showSection('main')">
+                <a href="/Corelia/" class="logo-link" onclick="showSection('main'); updateURL(''); return false;">
                     <h1 class="logo">Corelia</h1>
                     <p class="logo-subtitle">Core + Intelligence</p>
                 </a>
@@ -20,7 +20,7 @@
             
             <ul class="nav-menu">
                 <li class="nav-item">
-                    <a href="#" class="nav-link" onclick="showSection('ai-tools'); toggleSubmenu('ai-tools');">
+                    <a href="/Corelia/AI" class="nav-link" onclick="showSection('ai-tools'); toggleSubmenu('ai-tools'); updateURL('AI'); return false;">
                         <span class="nav-icon">🤖</span>
                         AI 활용하기
                         <span class="submenu-arrow">▼</span>
@@ -32,7 +32,7 @@
                     </ul>
                 </li>
                 <li class="nav-item">
-                    <a href="#" class="nav-link" onclick="showSection('ms')">
+                    <a href="/Corelia/MS" class="nav-link" onclick="showSection('ms'); updateURL('MS'); return false;">
                         <span class="nav-icon">🎮</span>
                         MS
                     </a>
@@ -98,6 +98,49 @@
     </div>
 
     <script>
+        // URL 업데이트 함수
+        function updateURL(path) {
+            const baseUrl = window.location.origin + '/Corelia/';
+            const newUrl = baseUrl + path;
+            window.history.pushState({path: path}, '', newUrl);
+        }
+
+        // URL에서 섹션 읽기
+        function getSectionFromURL() {
+            const path = window.location.pathname;
+            if (path.includes('/AI')) return 'ai-tools';
+            if (path.includes('/MS')) return 'ms';
+            return 'main';
+        }
+
+        // 페이지 로드 시 URL에 따라 섹션 설정
+        function initializePage() {
+            const sectionId = getSectionFromURL();
+            showSection(sectionId);
+            
+            // 네비게이션 활성화 상태 설정
+            const navLinks = document.querySelectorAll('.nav-link');
+            navLinks.forEach(link => link.classList.remove('active'));
+            
+            // 해당 섹션의 링크 활성화
+            if (sectionId === 'ai-tools') {
+                const aiLink = document.querySelector('a[href="/Corelia/AI"]');
+                if (aiLink) {
+                    aiLink.classList.add('active');
+                    // AI 서브메뉴 열기
+                    const submenu = document.getElementById('ai-tools-submenu');
+                    const arrow = aiLink.querySelector('.submenu-arrow');
+                    if (submenu && arrow) {
+                        submenu.classList.add('active');
+                        arrow.textContent = '▲';
+                    }
+                }
+            } else if (sectionId === 'ms') {
+                const msLink = document.querySelector('a[href="/Corelia/MS"]');
+                if (msLink) msLink.classList.add('active');
+            }
+        }
+
         function showSection(sectionId) {
             // 모든 섹션 숨기기
             const sections = document.querySelectorAll('.content-body');
@@ -150,6 +193,16 @@
                 }
             }
         }
+
+        // 브라우저 뒤로가기/앞으로가기 처리
+        window.addEventListener('popstate', function(event) {
+            initializePage();
+        });
+
+        // 페이지 로드 시 초기화
+        document.addEventListener('DOMContentLoaded', function() {
+            initializePage();
+        });
     </script>
 </body>
 </html>
