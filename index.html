@@ -420,7 +420,14 @@
                 
                 const data = await response.json();
                 console.log('로드된 데이터:', data);
-                transactions = data || [];
+                
+                // Google Sheets에 데이터가 있으면 사용, 없으면 로컬 데이터 유지
+                if (data && data.length > 0) {
+                    transactions = data;
+                    console.log('Google Sheets 데이터 사용:', transactions);
+                } else {
+                    console.log('Google Sheets가 비어있음, 로컬 데이터 유지');
+                }
                 updateDashboard();
             } catch (error) {
                 console.error('데이터 로드 실패:', error);
