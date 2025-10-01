@@ -24,12 +24,12 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="#" class="nav-link" onclick="toggleSubmenu('ai-tools')">
+                    <a href="#" class="nav-link" onclick="showSection('ai-tools'); toggleSubmenu('ai-tools');">
                         <span class="nav-icon">🤖</span>
                         AI 활용하기
                         <span class="submenu-arrow">▼</span>
                     </a>
-                    <ul class="submenu" id="ai-submenu">
+                    <ul class="submenu" id="ai-tools-submenu">
                         <li><a href="https://chatgpt.com/g/g-p-68a81e622c848191bfc6f52f5da56531-sosyeol/project" target="_blank">소설 만들기</a></li>
                         <li><a href="https://chatgpt.com/g/g-p-68da5f78b28c8191a99187e27d7add48-jemogbbobgi-jeongcaegboan-tstory/project" target="_blank">Tstory 블로그 제목 뽑기</a></li>
                         <li><a href="https://chatgpt.com/g/g-p-68da5e9cd36c8191b830e4f224cc3d13-naeyongmandeulgi-jeongcaegboan-tstory/project" target="_blank">Tstory 블로그 내용 만들기</a></li>
@@ -113,7 +113,11 @@
             // 네비게이션 활성화 상태 업데이트
             const navLinks = document.querySelectorAll('.nav-link');
             navLinks.forEach(link => link.classList.remove('active'));
-            event.target.classList.add('active');
+            
+            // 현재 클릭된 링크 활성화
+            if (event && event.currentTarget) {
+                event.currentTarget.classList.add('active');
+            }
             
             // 페이지 제목 업데이트
             const titles = {
@@ -128,23 +132,26 @@
 
         function toggleSubmenu(menuId) {
             const submenu = document.getElementById(menuId + '-submenu');
-            const arrow = event.target.querySelector('.submenu-arrow');
+            const navLink = event.currentTarget;
+            const arrow = navLink.querySelector('.submenu-arrow');
             
-            if (submenu.classList.contains('active')) {
-                submenu.classList.remove('active');
-                arrow.textContent = '▼';
-            } else {
-                // 다른 서브메뉴들 닫기
-                document.querySelectorAll('.submenu').forEach(menu => {
-                    menu.classList.remove('active');
-                });
-                document.querySelectorAll('.submenu-arrow').forEach(arrow => {
+            if (submenu && arrow) {
+                if (submenu.classList.contains('active')) {
+                    submenu.classList.remove('active');
                     arrow.textContent = '▼';
-                });
-                
-                // 현재 서브메뉴 열기
-                submenu.classList.add('active');
-                arrow.textContent = '▲';
+                } else {
+                    // 다른 서브메뉴들 닫기
+                    document.querySelectorAll('.submenu').forEach(menu => {
+                        menu.classList.remove('active');
+                    });
+                    document.querySelectorAll('.submenu-arrow').forEach(arrow => {
+                        arrow.textContent = '▼';
+                    });
+                    
+                    // 현재 서브메뉴 열기
+                    submenu.classList.add('active');
+                    arrow.textContent = '▲';
+                }
             }
         }
     </script>
