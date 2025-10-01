@@ -32,12 +32,13 @@
                     </ul>
                 </li>
                 <li class="nav-item">
-                    <a href="#" class="nav-link" onclick="showSection('ms'); toggleSubmenu('ms'); updateURL('MS'); return false;">
+                    <a href="#" class="nav-link" onclick="toggleSubmenu('ms'); return false;">
                         <span class="nav-icon">🎮</span>
                         MS
                         <span class="submenu-arrow">▼</span>
                     </a>
                     <ul class="submenu" id="ms-submenu">
+                        <li><a href="#" onclick="showSection('ms'); updateURL('MS'); return false;">MS 홈</a></li>
                         <li><a href="#" onclick="showSection('ms-account'); updateURL('MS-ACCOUNT'); return false;">MS 가계부</a></li>
                     </ul>
                 </li>
@@ -63,11 +64,6 @@
 
             <!-- AI 활용하기 화면 -->
             <div class="content-body hidden" id="ai-tools">
-                <div class="welcome-section">
-                    <h3>AI 활용하기</h3>
-                    <p>Corelia의 AI 도구들을 활용해보세요</p>
-                </div>
-
                 <div class="ai-tools-grid">
                     <div class="tool-card">
                         <div class="tool-icon">📚</div>
@@ -118,10 +114,6 @@
 
             <!-- MS 가계부 섹션 -->
             <div class="content-body hidden" id="ms-account">
-                <div class="welcome-section">
-                    <h3>MS 가계부</h3>
-                    <p>메이플스토리 수익 관리 시스템</p>
-                </div>
 
                 <!-- 월별 대시보드 -->
                 <div class="dashboard-section">
@@ -156,29 +148,25 @@
                                 <label>일자</label>
                                 <input type="date" id="transaction-date" required>
                             </div>
+                        </div>
+                        <div class="form-row">
                             <div class="form-group">
-                                <label>유형</label>
-                                <select id="transaction-type" required>
-                                    <option value="">선택하세요</option>
-                                    <option value="charge">충전</option>
-                                    <option value="sell">판매</option>
-                                </select>
+                                <label>충전 금액 (원)</label>
+                                <input type="number" id="charge-amount" placeholder="예: 500000" required>
+                            </div>
+                            <div class="form-group">
+                                <label>메포 시세 (원/1억)</label>
+                                <input type="number" id="mepo-rate" placeholder="예: 2500" required>
                             </div>
                         </div>
                         <div class="form-row">
                             <div class="form-group">
-                                <label>메포 시세</label>
-                                <input type="number" id="mepo-rate" placeholder="메포 시세 입력">
+                                <label>물통 시세 (원/1억)</label>
+                                <input type="number" id="water-rate" placeholder="예: 2000" required>
                             </div>
                             <div class="form-group">
-                                <label>물통 시세</label>
-                                <input type="number" id="water-rate" placeholder="물통 시세 입력">
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>충전 금액</label>
-                                <input type="number" id="charge-amount" placeholder="충전 금액 입력">
+                                <label>메모</label>
+                                <input type="text" id="memo" placeholder="선택사항">
                             </div>
                         </div>
                         <button type="submit" class="submit-btn">저장</button>
@@ -193,10 +181,13 @@
                             <thead>
                                 <tr>
                                     <th>일자</th>
-                                    <th>유형</th>
-                                    <th>메포 시세</th>
-                                    <th>물통 시세</th>
-                                    <th>충전 금액</th>
+                                    <th>충전금액</th>
+                                    <th>메포시세</th>
+                                    <th>얻은메소</th>
+                                    <th>물통시세</th>
+                                    <th>판매금액</th>
+                                    <th>수익/손실</th>
+                                    <th>메모</th>
                                     <th>액션</th>
                                 </tr>
                             </thead>
@@ -530,12 +521,10 @@
             });
             
             const totalCharge = monthTransactions
-                .filter(t => t.type === 'charge')
                 .reduce((sum, t) => sum + (parseInt(t.chargeAmount) || 0), 0);
             
             const totalSales = monthTransactions
-                .filter(t => t.type === 'sell')
-                .reduce((sum, t) => sum + (parseInt(t.chargeAmount) || 0), 0);
+                .reduce((sum, t) => sum + (parseInt(t.salesAmount) || 0), 0);
             
             const profitLoss = totalSales - totalCharge;
             
@@ -561,14 +550,29 @@
         async function handleTransactionSubmit(e) {
             e.preventDefault();
             
+            const chargeAmount = parseInt(document.getElementById('charge-amount').value);
+            const mepoRate = parseInt(document.getElementById('mepo-rate').value);
+            const waterRate = parseInt(document.getElementById('water-rate').value);
+            
+            // 메소 계산: 충전금액 / 메포시세 * 1억
+            const mesoAmount = Math.floor((chargeAmount / mepoRate) * 100000000);
+            
+            // 판매금액 계산: 메소 / 1억 * 물통시세
+            const salesAmount = Math.floor((mesoAmount / 100000000) * waterRate);
+            
+            // 수익/손실 계산
+            const profitLoss = salesAmount - chargeAmount;
+            
             const transaction = {
                 id: Date.now().toString(),
                 date: document.getElementById('transaction-date').value,
-                type: document.getElementById('transaction-type').value,
-                mepoRate: document.getElementById('mepo-rate').value,
-                waterRate: document.getElementById('water-rate').value,
-                chargeAmount: document.getElementById('charge-amount').value,
-                memo: '' // 나중에 추가할 수 있음
+                chargeAmount: chargeAmount,
+                mepoRate: mepoRate,
+                mesoAmount: mesoAmount,
+                waterRate: waterRate,
+                salesAmount: salesAmount,
+                profitLoss: profitLoss,
+                memo: document.getElementById('memo').value || ''
             };
             
             // 즉시 로컬에 저장 (백업)
@@ -596,12 +600,16 @@
             
             monthTransactions.forEach(transaction => {
                 const row = document.createElement('tr');
+                const profitLossColor = transaction.profitLoss >= 0 ? '#007bff' : '#dc3545';
                 row.innerHTML = `
                     <td>${transaction.date}</td>
-                    <td>${transaction.type === 'charge' ? '충전' : '판매'}</td>
-                    <td>${transaction.mepoRate || '-'}</td>
-                    <td>${transaction.waterRate || '-'}</td>
-                    <td>${transaction.chargeAmount ? parseInt(transaction.chargeAmount).toLocaleString() + '원' : '-'}</td>
+                    <td>${parseInt(transaction.chargeAmount).toLocaleString()}원</td>
+                    <td>${transaction.mepoRate.toLocaleString()}원/1억</td>
+                    <td>${transaction.mesoAmount.toLocaleString()}메소</td>
+                    <td>${transaction.waterRate.toLocaleString()}원/1억</td>
+                    <td>${parseInt(transaction.salesAmount).toLocaleString()}원</td>
+                    <td style="color: ${profitLossColor}">${transaction.profitLoss >= 0 ? '+' : ''}${parseInt(transaction.profitLoss).toLocaleString()}원</td>
+                    <td>${transaction.memo || '-'}</td>
                     <td>
                         <button onclick="deleteTransaction(${transaction.id})" class="delete-btn">삭제</button>
                     </td>
