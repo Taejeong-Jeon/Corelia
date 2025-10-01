@@ -32,13 +32,12 @@
                     </ul>
                 </li>
                 <li class="nav-item">
-                    <a href="#" class="nav-link" onclick="toggleSubmenu('ms'); return false;">
+                    <a href="#" class="nav-link" onclick="showSection('ms'); toggleSubmenu('ms'); updateURL('MS'); return false;">
                         <span class="nav-icon">🎮</span>
                         MS
                         <span class="submenu-arrow">▼</span>
                     </a>
                     <ul class="submenu" id="ms-submenu">
-                        <li><a href="#" onclick="showSection('ms'); updateURL('MS'); return false;">MS 홈</a></li>
                         <li><a href="#" onclick="showSection('ms-account'); updateURL('MS-ACCOUNT'); return false;">MS 가계부</a></li>
                     </ul>
                 </li>
@@ -227,23 +226,8 @@
                 <!-- 거래 내역 -->
                 <div class="transaction-list">
                     <h3>거래 내역</h3>
-                    <div id="transaction-table">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>일자</th>
-                                    <th>유형</th>
-                                    <th>금액/메소</th>
-                                    <th>시세</th>
-                                    <th>결과</th>
-                                    <th>메모</th>
-                                    <th>액션</th>
-                                </tr>
-                            </thead>
-                            <tbody id="transaction-tbody">
-                                <!-- 거래 내역이 여기에 표시됩니다 -->
-                            </tbody>
-                        </table>
+                    <div id="transaction-list-container">
+                        <!-- 거래 내역이 여기에 리스트로 표시됩니다 -->
                     </div>
                 </div>
             </div>
@@ -791,49 +775,83 @@
             document.getElementById('transaction-date').value = new Date().toISOString().split('T')[0];
         }
 
-        // 거래 테이블 업데이트
+        // 거래 리스트 업데이트
         function updateTransactionTable() {
-            const tbody = document.getElementById('transaction-tbody');
-            tbody.innerHTML = '';
+            const container = document.getElementById('transaction-list-container');
+            container.innerHTML = '';
             
             const monthTransactions = transactions.filter(t => {
                 const date = new Date(t.date);
                 return date.getFullYear() === currentYear && date.getMonth() + 1 === currentMonth;
             });
             
+            if (monthTransactions.length === 0) {
+                container.innerHTML = '<div class="empty-state">이번 달 거래 내역이 없습니다.</div>';
+                return;
+            }
+            
             monthTransactions.forEach(transaction => {
-                const row = document.createElement('tr');
-                let typeText, amountText, rateText, resultText;
+                const transactionItem = document.createElement('div');
+                transactionItem.className = 'transaction-item';
+                
+                let typeIcon, typeText, amountText, rateText, resultText, resultColor;
                 
                 if (transaction.type === 'charge') {
+                    typeIcon = '💰';
                     typeText = '충전';
                     amountText = `${parseInt(transaction.chargeAmount).toLocaleString()}원`;
-                    rateText = '-';
-                    resultText = '-';
+                    rateText = '';
+                    resultText = '현금 충전';
+                    resultColor = '#6c757d';
                 } else if (transaction.type === 'convert') {
+                    typeIcon = '🔄';
                     typeText = '전환';
                     amountText = `${transaction.mesoAmount}억 메소`;
                     rateText = `${transaction.mepoRate.toLocaleString()}원/1억`;
                     resultText = `${parseInt(transaction.convertCost).toLocaleString()}원 지출`;
+                    resultColor = '#ffc107';
                 } else if (transaction.type === 'sell') {
+                    typeIcon = '💸';
                     typeText = '판매';
                     amountText = `${transaction.sellMeso}억 메소`;
                     rateText = `${transaction.waterRate.toLocaleString()}원/1억`;
                     resultText = `${parseInt(transaction.salesAmount).toLocaleString()}원 수입`;
+                    resultColor = '#28a745';
                 }
                 
-                row.innerHTML = `
-                    <td>${transaction.date}</td>
-                    <td>${typeText}</td>
-                    <td>${amountText}</td>
-                    <td>${rateText}</td>
-                    <td>${resultText}</td>
-                    <td>${transaction.memo || '-'}</td>
-                    <td>
+                transactionItem.innerHTML = `
+                    <div class="transaction-header">
+                        <div class="transaction-type">
+                            <span class="type-icon">${typeIcon}</span>
+                            <span class="type-text">${typeText}</span>
+                        </div>
+                        <div class="transaction-date">${transaction.date}</div>
                         <button onclick="deleteTransaction(${transaction.id})" class="delete-btn">삭제</button>
-                    </td>
+                    </div>
+                    <div class="transaction-details">
+                        <div class="detail-item">
+                            <span class="detail-label">금액/메소:</span>
+                            <span class="detail-value">${amountText}</span>
+                        </div>
+                        ${rateText ? `
+                        <div class="detail-item">
+                            <span class="detail-label">시세:</span>
+                            <span class="detail-value">${rateText}</span>
+                        </div>
+                        ` : ''}
+                        <div class="detail-item">
+                            <span class="detail-label">결과:</span>
+                            <span class="detail-value" style="color: ${resultColor}">${resultText}</span>
+                        </div>
+                        ${transaction.memo ? `
+                        <div class="detail-item">
+                            <span class="detail-label">메모:</span>
+                            <span class="detail-value">${transaction.memo}</span>
+                        </div>
+                        ` : ''}
+                    </div>
                 `;
-                tbody.appendChild(row);
+                container.appendChild(transactionItem);
             });
         }
 
