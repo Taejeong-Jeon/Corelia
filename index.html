@@ -32,13 +32,12 @@
                     </ul>
                 </li>
                 <li class="nav-item">
-                    <a href="#" class="nav-link" onclick="toggleSubmenu('ms'); return false;">
+                    <a href="#" class="nav-link" onclick="showSection('ms-account'); toggleSubmenu('ms'); updateURL('MS-ACCOUNT'); return false;">
                         <span class="nav-icon">🎮</span>
                         MS
                         <span class="submenu-arrow">▼</span>
                     </a>
                     <ul class="submenu" id="ms-submenu">
-                        <li><a href="#" onclick="showSection('ms'); updateURL('MS'); return false;">MS 메인</a></li>
                         <li><a href="#" onclick="showSection('ms-account'); updateURL('MS-ACCOUNT'); return false;">MS 가계부</a></li>
                     </ul>
                 </li>
@@ -348,13 +347,26 @@
         // Google Sheets에서 거래 데이터 로드
         async function loadTransactions() {
             try {
+                console.log('데이터 로드 시작...');
                 const response = await fetch(GOOGLE_SHEETS_API_URL);
+                console.log('응답 상태:', response.status);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
                 const data = await response.json();
+                console.log('로드된 데이터:', data);
                 transactions = data || [];
                 updateDashboard();
             } catch (error) {
                 console.error('데이터 로드 실패:', error);
-                // 오프라인 모드로 계속 진행
+                // 로컬 스토리지에서 데이터 로드 시도
+                const localData = localStorage.getItem('ms-transactions');
+                if (localData) {
+                    transactions = JSON.parse(localData);
+                    console.log('로컬 데이터 로드:', transactions);
+                }
                 updateDashboard();
             }
         }
@@ -362,6 +374,8 @@
         // Google Sheets에 거래 데이터 저장
         async function saveTransaction(transaction) {
             try {
+                console.log('데이터 저장 시작:', transaction);
+                
                 const response = await fetch(GOOGLE_SHEETS_API_URL, {
                     method: 'POST',
                     headers: {
@@ -370,17 +384,38 @@
                     body: JSON.stringify(transaction)
                 });
                 
+                console.log('저장 응답 상태:', response.status);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
                 const result = await response.json();
+                console.log('저장 결과:', result);
+                
                 if (result.success) {
-                    console.log('데이터 저장 성공');
+                    console.log('Google Sheets 저장 성공');
                     // 데이터 다시 로드
                     await loadTransactions();
+                } else {
+                    throw new Error('저장 실패');
                 }
             } catch (error) {
-                console.error('데이터 저장 실패:', error);
-                // 로컬에만 저장 (오프라인 모드)
-                transactions.push(transaction);
+                console.error('Google Sheets 저장 실패:', error);
+                console.log('로컬 저장으로 대체...');
+                
+                // 로컬에 저장 (백업)
+                const newTransaction = {
+                    ...transaction,
+                    id: Date.now().toString()
+                };
+                transactions.push(newTransaction);
+                
+                // 로컬 스토리지에도 저장
+                localStorage.setItem('ms-transactions', JSON.stringify(transactions));
+                
                 updateDashboard();
+                alert('데이터가 로컬에 저장되었습니다. (Google Sheets 연결 실패)');
             }
         }
 
