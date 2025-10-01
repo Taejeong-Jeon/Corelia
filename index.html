@@ -583,26 +583,19 @@
                 return date.getFullYear() === currentYear && date.getMonth() + 1 === currentMonth;
             });
             
-            // 충전 총액
+            // 충전 총액 (지출이므로 마이너스)
             const totalCharge = monthTransactions
                 .filter(t => t.type === 'charge')
                 .reduce((sum, t) => sum + (parseInt(t.chargeAmount) || 0), 0);
             
-            // 전환 총 비용
-            const totalConvertCost = monthTransactions
-                .filter(t => t.type === 'convert')
-                .reduce((sum, t) => sum + (parseInt(t.convertCost) || 0), 0);
-            
-            // 판매 총 금액
+            // 판매 총 금액 (수입이므로 플러스)
             const totalSales = monthTransactions
                 .filter(t => t.type === 'sell')
                 .reduce((sum, t) => sum + (parseInt(t.salesAmount) || 0), 0);
             
-            // 총 지출 (충전 + 전환)
-            const totalExpense = totalCharge + totalConvertCost;
-            
-            // 손익 (판매 - 지출)
-            const profitLoss = totalSales - totalExpense;
+            // 손익 계산: 판매금액(+) - 충전금액(-)
+            // 전환은 메소 구매/보관이므로 손익에 영향 없음
+            const profitLoss = totalSales - totalCharge;
             
             document.getElementById('total-charge').textContent = `${totalCharge.toLocaleString()}원`;
             document.getElementById('total-sales').textContent = `${totalSales.toLocaleString()}원`;
@@ -654,12 +647,7 @@
                 transaction.salesAmount = transaction.waterRate * transaction.sellMeso; // 판매 금액
             }
             
-            // 즉시 로컬에 저장 (백업)
-            transactions.push(transaction);
-            localStorage.setItem('ms-transactions', JSON.stringify(transactions));
-            updateDashboard();
-            
-            // Google Sheets에 저장 시도
+            // Google Sheets에 저장 시도 (실패 시 로컬에 저장)
             await saveTransaction(transaction);
             
             // 폼 초기화
