@@ -32,7 +32,7 @@
                     </ul>
                 </li>
                 <li class="nav-item">
-                    <a href="#" class="nav-link" onclick="showSection('ms-account'); toggleSubmenu('ms'); updateURL('MS-ACCOUNT'); return false;">
+                    <a href="#" class="nav-link" onclick="showSection('ms'); toggleSubmenu('ms'); updateURL('MS'); return false;">
                         <span class="nav-icon">🎮</span>
                         MS
                         <span class="submenu-arrow">▼</span>
@@ -96,6 +96,23 @@
                 <div class="welcome-section">
                     <h3>MS 섹션</h3>
                     <p>게임 관련 콘텐츠가 준비 중입니다</p>
+                </div>
+            </div>
+
+            <!-- MS 홈 섹션 -->
+            <div class="content-body hidden" id="ms">
+                <div class="welcome-section">
+                    <h3>MS</h3>
+                    <p>메이플스토리 관련 도구들을 활용해보세요</p>
+                </div>
+                <div class="section-content">
+                    <div class="card">
+                        <h3>🎮 MS 가계부</h3>
+                        <p>메이플스토리 수익과 지출을 관리하고 월별 통계를 확인하세요.</p>
+                        <button class="btn btn-primary" onclick="showSection('ms-account'); updateURL('MS-ACCOUNT'); return false;">
+                            가계부 열기
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -250,8 +267,20 @@
                         arrow.textContent = '▲';
                     }
                 }
+            } else if (sectionId === 'ms') {
+                const msLink = document.querySelector('a[onclick*="ms"]');
+                if (msLink) {
+                    msLink.classList.add('active');
+                    // MS 서브메뉴 열기
+                    const submenu = document.getElementById('ms-submenu');
+                    const arrow = msLink.querySelector('.submenu-arrow');
+                    if (submenu && arrow) {
+                        submenu.classList.add('active');
+                        arrow.textContent = '▲';
+                    }
+                }
             } else if (sectionId === 'ms-account') {
-                const msLink = document.querySelector('a[onclick*="ms-account"]');
+                const msLink = document.querySelector('a[onclick*="ms"]');
                 if (msLink) {
                     msLink.classList.add('active');
                     // MS 서브메뉴 열기
@@ -501,6 +530,7 @@
             e.preventDefault();
             
             const transaction = {
+                id: Date.now().toString(),
                 date: document.getElementById('transaction-date').value,
                 type: document.getElementById('transaction-type').value,
                 mepoRate: document.getElementById('mepo-rate').value,
@@ -509,7 +539,12 @@
                 memo: '' // 나중에 추가할 수 있음
             };
             
-            // Google Sheets에 저장
+            // 즉시 로컬에 저장 (백업)
+            transactions.push(transaction);
+            localStorage.setItem('ms-transactions', JSON.stringify(transactions));
+            updateDashboard();
+            
+            // Google Sheets에 저장 시도
             await saveTransaction(transaction);
             
             // 폼 초기화
