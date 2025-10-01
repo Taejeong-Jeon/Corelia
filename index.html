@@ -148,22 +148,56 @@
                                 <label>일자</label>
                                 <input type="date" id="transaction-date" required>
                             </div>
+                            <div class="form-group">
+                                <label>거래 유형</label>
+                                <select id="transaction-type" required onchange="toggleFields()">
+                                    <option value="">선택하세요</option>
+                                    <option value="charge">충전</option>
+                                    <option value="convert">전환</option>
+                                    <option value="sell">판매</option>
+                                </select>
+                            </div>
                         </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>충전 금액 (원)</label>
-                                <input type="number" id="charge-amount" placeholder="예: 500000" required>
-                            </div>
-                            <div class="form-group">
-                                <label>메포 시세 (원/1억)</label>
-                                <input type="number" id="mepo-rate" placeholder="예: 2500" required>
+                        
+                        <!-- 충전 필드 -->
+                        <div id="charge-fields" class="transaction-fields" style="display: none;">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>충전 금액 (원)</label>
+                                    <input type="number" id="charge-amount" placeholder="예: 500000">
+                                </div>
                             </div>
                         </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>물통 시세 (원/1억)</label>
-                                <input type="number" id="water-rate" placeholder="예: 2000" required>
+                        
+                        <!-- 전환 필드 -->
+                        <div id="convert-fields" class="transaction-fields" style="display: none;">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>메포 시세 (원/1억)</label>
+                                    <input type="number" id="mepo-rate" placeholder="예: 2500">
+                                </div>
+                                <div class="form-group">
+                                    <label>구매한 메소 (억)</label>
+                                    <input type="number" id="meso-amount" placeholder="예: 200" step="0.1">
+                                </div>
                             </div>
+                        </div>
+                        
+                        <!-- 판매 필드 -->
+                        <div id="sell-fields" class="transaction-fields" style="display: none;">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>물통 시세 (원/1억)</label>
+                                    <input type="number" id="water-rate" placeholder="예: 2000">
+                                </div>
+                                <div class="form-group">
+                                    <label>판매한 메소 (억)</label>
+                                    <input type="number" id="sell-meso" placeholder="예: 200" step="0.1">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
                             <div class="form-group">
                                 <label>메모</label>
                                 <input type="text" id="memo" placeholder="선택사항">
@@ -181,12 +215,10 @@
                             <thead>
                                 <tr>
                                     <th>일자</th>
-                                    <th>충전금액</th>
-                                    <th>메포시세</th>
-                                    <th>얻은메소</th>
-                                    <th>물통시세</th>
-                                    <th>판매금액</th>
-                                    <th>수익/손실</th>
+                                    <th>유형</th>
+                                    <th>금액/메소</th>
+                                    <th>시세</th>
+                                    <th>결과</th>
                                     <th>메모</th>
                                     <th>액션</th>
                                 </tr>
@@ -373,6 +405,37 @@
         let transactions = [];
         const GOOGLE_SHEETS_API_URL = 'https://script.google.com/macros/s/AKfycbx-sk4f9HHx-iXgCHeDhyt8HzHAKULQxA8akZx9VqJmGj6ZDkPNpgDcQ4FCr8FASlcP/exec';
 
+        // 거래 유형에 따른 필드 표시/숨김
+        function toggleFields() {
+            const transactionType = document.getElementById('transaction-type').value;
+            
+            // 모든 필드 숨기기
+            document.getElementById('charge-fields').style.display = 'none';
+            document.getElementById('convert-fields').style.display = 'none';
+            document.getElementById('sell-fields').style.display = 'none';
+            
+            // 선택된 유형에 따라 필드 표시
+            if (transactionType === 'charge') {
+                document.getElementById('charge-fields').style.display = 'block';
+                document.getElementById('charge-amount').required = true;
+            } else if (transactionType === 'convert') {
+                document.getElementById('convert-fields').style.display = 'block';
+                document.getElementById('mepo-rate').required = true;
+                document.getElementById('meso-amount').required = true;
+            } else if (transactionType === 'sell') {
+                document.getElementById('sell-fields').style.display = 'block';
+                document.getElementById('water-rate').required = true;
+                document.getElementById('sell-meso').required = true;
+            }
+            
+            // 다른 필드들의 required 해제
+            document.getElementById('charge-amount').required = false;
+            document.getElementById('mepo-rate').required = false;
+            document.getElementById('meso-amount').required = false;
+            document.getElementById('water-rate').required = false;
+            document.getElementById('sell-meso').required = false;
+        }
+
         // MS 가계부 초기화
         function initializeMSAccount() {
             // 오늘 날짜를 기본값으로 설정
@@ -520,13 +583,26 @@
                 return date.getFullYear() === currentYear && date.getMonth() + 1 === currentMonth;
             });
             
+            // 충전 총액
             const totalCharge = monthTransactions
+                .filter(t => t.type === 'charge')
                 .reduce((sum, t) => sum + (parseInt(t.chargeAmount) || 0), 0);
             
+            // 전환 총 비용
+            const totalConvertCost = monthTransactions
+                .filter(t => t.type === 'convert')
+                .reduce((sum, t) => sum + (parseInt(t.convertCost) || 0), 0);
+            
+            // 판매 총 금액
             const totalSales = monthTransactions
+                .filter(t => t.type === 'sell')
                 .reduce((sum, t) => sum + (parseInt(t.salesAmount) || 0), 0);
             
-            const profitLoss = totalSales - totalCharge;
+            // 총 지출 (충전 + 전환)
+            const totalExpense = totalCharge + totalConvertCost;
+            
+            // 손익 (판매 - 지출)
+            const profitLoss = totalSales - totalExpense;
             
             document.getElementById('total-charge').textContent = `${totalCharge.toLocaleString()}원`;
             document.getElementById('total-sales').textContent = `${totalSales.toLocaleString()}원`;
@@ -550,30 +626,33 @@
         async function handleTransactionSubmit(e) {
             e.preventDefault();
             
-            const chargeAmount = parseInt(document.getElementById('charge-amount').value);
-            const mepoRate = parseInt(document.getElementById('mepo-rate').value);
-            const waterRate = parseInt(document.getElementById('water-rate').value);
+            const transactionType = document.getElementById('transaction-type').value;
+            const date = document.getElementById('transaction-date').value;
+            const memo = document.getElementById('memo').value || '';
             
-            // 메소 계산: 충전금액 / 메포시세 * 1억
-            const mesoAmount = Math.floor((chargeAmount / mepoRate) * 100000000);
-            
-            // 판매금액 계산: 메소 / 1억 * 물통시세
-            const salesAmount = Math.floor((mesoAmount / 100000000) * waterRate);
-            
-            // 수익/손실 계산
-            const profitLoss = salesAmount - chargeAmount;
-            
-            const transaction = {
+            let transaction = {
                 id: Date.now().toString(),
-                date: document.getElementById('transaction-date').value,
-                chargeAmount: chargeAmount,
-                mepoRate: mepoRate,
-                mesoAmount: mesoAmount,
-                waterRate: waterRate,
-                salesAmount: salesAmount,
-                profitLoss: profitLoss,
-                memo: document.getElementById('memo').value || ''
+                date: date,
+                type: transactionType,
+                memo: memo
             };
+            
+            if (transactionType === 'charge') {
+                // 충전: 일자 + 충전금액만
+                transaction.chargeAmount = parseInt(document.getElementById('charge-amount').value);
+                
+            } else if (transactionType === 'convert') {
+                // 전환: 메포시세 + 구매한 메소
+                transaction.mepoRate = parseInt(document.getElementById('mepo-rate').value);
+                transaction.mesoAmount = parseFloat(document.getElementById('meso-amount').value);
+                transaction.convertCost = transaction.mepoRate * transaction.mesoAmount; // 전환 비용
+                
+            } else if (transactionType === 'sell') {
+                // 판매: 물통시세 + 판매한 메소
+                transaction.waterRate = parseInt(document.getElementById('water-rate').value);
+                transaction.sellMeso = parseFloat(document.getElementById('sell-meso').value);
+                transaction.salesAmount = transaction.waterRate * transaction.sellMeso; // 판매 금액
+            }
             
             // 즉시 로컬에 저장 (백업)
             transactions.push(transaction);
@@ -600,15 +679,31 @@
             
             monthTransactions.forEach(transaction => {
                 const row = document.createElement('tr');
-                const profitLossColor = transaction.profitLoss >= 0 ? '#007bff' : '#dc3545';
+                let typeText, amountText, rateText, resultText;
+                
+                if (transaction.type === 'charge') {
+                    typeText = '충전';
+                    amountText = `${parseInt(transaction.chargeAmount).toLocaleString()}원`;
+                    rateText = '-';
+                    resultText = '-';
+                } else if (transaction.type === 'convert') {
+                    typeText = '전환';
+                    amountText = `${transaction.mesoAmount}억 메소`;
+                    rateText = `${transaction.mepoRate.toLocaleString()}원/1억`;
+                    resultText = `${parseInt(transaction.convertCost).toLocaleString()}원 지출`;
+                } else if (transaction.type === 'sell') {
+                    typeText = '판매';
+                    amountText = `${transaction.sellMeso}억 메소`;
+                    rateText = `${transaction.waterRate.toLocaleString()}원/1억`;
+                    resultText = `${parseInt(transaction.salesAmount).toLocaleString()}원 수입`;
+                }
+                
                 row.innerHTML = `
                     <td>${transaction.date}</td>
-                    <td>${parseInt(transaction.chargeAmount).toLocaleString()}원</td>
-                    <td>${transaction.mepoRate.toLocaleString()}원/1억</td>
-                    <td>${transaction.mesoAmount.toLocaleString()}메소</td>
-                    <td>${transaction.waterRate.toLocaleString()}원/1억</td>
-                    <td>${parseInt(transaction.salesAmount).toLocaleString()}원</td>
-                    <td style="color: ${profitLossColor}">${transaction.profitLoss >= 0 ? '+' : ''}${parseInt(transaction.profitLoss).toLocaleString()}원</td>
+                    <td>${typeText}</td>
+                    <td>${amountText}</td>
+                    <td>${rateText}</td>
+                    <td>${resultText}</td>
                     <td>${transaction.memo || '-'}</td>
                     <td>
                         <button onclick="deleteTransaction(${transaction.id})" class="delete-btn">삭제</button>
