@@ -614,8 +614,18 @@
         async function deleteTransaction(id) {
             if (confirm('정말 삭제하시겠습니까?')) {
                 try {
+                    console.log('삭제 전 거래 목록:', transactions);
+                    console.log('삭제할 ID:', id, '타입:', typeof id);
+                    
+                    // ID 타입 통일 (문자열로 변환)
+                    const targetId = String(id);
+                    
                     // 로컬에서 삭제
-                    transactions = transactions.filter(t => t.id !== id);
+                    const beforeCount = transactions.length;
+                    transactions = transactions.filter(t => String(t.id) !== targetId);
+                    const afterCount = transactions.length;
+                    
+                    console.log('삭제 전 개수:', beforeCount, '삭제 후 개수:', afterCount);
                     
                     // 로컬 스토리지에 저장
                     localStorage.setItem('ms-transactions', JSON.stringify(transactions));
