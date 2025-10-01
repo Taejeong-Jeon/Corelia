@@ -331,6 +331,7 @@
         let currentYear = 2025;
         let currentMonth = 10;
         let transactions = [];
+        const GOOGLE_SHEETS_API_URL = 'https://script.google.com/macros/s/AKfycbx-sk4f9HHx-iXgCHeDhyt8HzHAKULQxA8akZx9VqJmGj6ZDkPNpgDcQ4FCr8FASlcP/exec';
 
         // MS 가계부 초기화
         function initializeMSAccount() {
@@ -340,8 +341,47 @@
             // 폼 제출 이벤트 리스너
             document.getElementById('transaction-form').addEventListener('submit', handleTransactionSubmit);
             
-            // 월별 대시보드 업데이트
-            updateDashboard();
+            // Google Sheets에서 데이터 로드
+            loadTransactions();
+        }
+
+        // Google Sheets에서 거래 데이터 로드
+        async function loadTransactions() {
+            try {
+                const response = await fetch(GOOGLE_SHEETS_API_URL);
+                const data = await response.json();
+                transactions = data || [];
+                updateDashboard();
+            } catch (error) {
+                console.error('데이터 로드 실패:', error);
+                // 오프라인 모드로 계속 진행
+                updateDashboard();
+            }
+        }
+
+        // Google Sheets에 거래 데이터 저장
+        async function saveTransaction(transaction) {
+            try {
+                const response = await fetch(GOOGLE_SHEETS_API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(transaction)
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    console.log('데이터 저장 성공');
+                    // 데이터 다시 로드
+                    await loadTransactions();
+                }
+            } catch (error) {
+                console.error('데이터 저장 실패:', error);
+                // 로컬에만 저장 (오프라인 모드)
+                transactions.push(transaction);
+                updateDashboard();
+            }
         }
 
         // 월 변경 함수
@@ -413,26 +453,24 @@
         }
 
         // 거래 제출 처리
-        function handleTransactionSubmit(e) {
+        async function handleTransactionSubmit(e) {
             e.preventDefault();
             
             const transaction = {
-                id: Date.now(),
                 date: document.getElementById('transaction-date').value,
                 type: document.getElementById('transaction-type').value,
                 mepoRate: document.getElementById('mepo-rate').value,
                 waterRate: document.getElementById('water-rate').value,
-                chargeAmount: document.getElementById('charge-amount').value
+                chargeAmount: document.getElementById('charge-amount').value,
+                memo: '' // 나중에 추가할 수 있음
             };
             
-            transactions.push(transaction);
+            // Google Sheets에 저장
+            await saveTransaction(transaction);
             
             // 폼 초기화
             document.getElementById('transaction-form').reset();
             document.getElementById('transaction-date').value = new Date().toISOString().split('T')[0];
-            
-            // 대시보드 업데이트
-            updateDashboard();
         }
 
         // 거래 테이블 업데이트
@@ -462,10 +500,19 @@
         }
 
         // 거래 삭제
-        function deleteTransaction(id) {
+        async function deleteTransaction(id) {
             if (confirm('정말 삭제하시겠습니까?')) {
-                transactions = transactions.filter(t => t.id !== id);
-                updateDashboard();
+                try {
+                    // Google Sheets에서 삭제 (나중에 구현)
+                    // 지금은 로컬에서만 삭제
+                    transactions = transactions.filter(t => t.id !== id);
+                    updateDashboard();
+                    
+                    // TODO: Google Sheets API에 삭제 요청 추가
+                    console.log('삭제된 ID:', id);
+                } catch (error) {
+                    console.error('삭제 실패:', error);
+                }
             }
         }
     </script>
