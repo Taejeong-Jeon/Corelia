@@ -100,17 +100,34 @@
     <script>
         // URL 업데이트 함수
         function updateURL(path) {
-            const baseUrl = window.location.origin + '/Corelia/';
-            const newUrl = baseUrl + path;
-            window.history.pushState({path: path}, '', newUrl);
+            // 로컬 파일인지 확인
+            if (window.location.protocol === 'file:') {
+                // 로컬에서는 hash 사용
+                window.location.hash = path;
+            } else {
+                // 온라인에서는 path 사용
+                const baseUrl = window.location.origin + '/Corelia/';
+                const newUrl = baseUrl + path;
+                window.history.pushState({path: path}, '', newUrl);
+            }
         }
 
         // URL에서 섹션 읽기
         function getSectionFromURL() {
-            const path = window.location.pathname;
-            if (path.includes('/AI')) return 'ai-tools';
-            if (path.includes('/MS')) return 'ms';
-            return 'main';
+            // 로컬 파일인지 확인
+            if (window.location.protocol === 'file:') {
+                // 로컬에서는 hash 사용
+                const hash = window.location.hash;
+                if (hash === '#AI') return 'ai-tools';
+                if (hash === '#MS') return 'ms';
+                return 'main';
+            } else {
+                // 온라인에서는 path 사용
+                const path = window.location.pathname;
+                if (path.includes('/AI')) return 'ai-tools';
+                if (path.includes('/MS')) return 'ms';
+                return 'main';
+            }
         }
 
         // 페이지 로드 시 URL에 따라 섹션 설정
@@ -196,6 +213,11 @@
 
         // 브라우저 뒤로가기/앞으로가기 처리
         window.addEventListener('popstate', function(event) {
+            initializePage();
+        });
+
+        // hash 변경 처리 (로컬 파일용)
+        window.addEventListener('hashchange', function(event) {
             initializePage();
         });
 
