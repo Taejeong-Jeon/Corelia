@@ -250,13 +250,22 @@
                         arrow.textContent = '▲';
                     }
                 }
-            } else if (sectionId === 'ms') {
-                const msLink = document.querySelector('a[href="/Corelia/MS"]');
-                if (msLink) msLink.classList.add('active');
+            } else if (sectionId === 'ms-account') {
+                const msLink = document.querySelector('a[onclick*="ms-account"]');
+                if (msLink) {
+                    msLink.classList.add('active');
+                    // MS 서브메뉴 열기
+                    const submenu = document.getElementById('ms-submenu');
+                    const arrow = msLink.querySelector('.submenu-arrow');
+                    if (submenu && arrow) {
+                        submenu.classList.add('active');
+                        arrow.textContent = '▲';
+                    }
+                }
             }
         }
 
-        function showSection(sectionId) {
+        function showSection(sectionId, event) {
             // 모든 섹션 숨기기
             const sections = document.querySelectorAll('.content-body');
             sections.forEach(section => section.classList.add('hidden'));
@@ -268,8 +277,8 @@
             const navLinks = document.querySelectorAll('.nav-link');
             navLinks.forEach(link => link.classList.remove('active'));
             
-            // 현재 클릭된 링크 활성화
-            if (event && event.currentTarget) {
+            // 현재 클릭된 링크 활성화 (event가 있을 때만)
+            if (event && event.currentTarget && event.currentTarget.classList) {
                 event.currentTarget.classList.add('active');
             }
             
