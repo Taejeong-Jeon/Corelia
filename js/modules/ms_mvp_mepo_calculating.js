@@ -2,15 +2,15 @@ const MSMepoCalculating = (function() {
     let isInitialized = false;
 
     function initialize() {
-        if (isInitialized) return;
-
         const inputs = document.querySelectorAll('#ms-mepo-calculating input');
         if (inputs.length === 0) return; // 요소가 없으면 종료
 
-        inputs.forEach(input => {
-            input.addEventListener('input', calculate);
-        });
-        isInitialized = true;
+        if (!isInitialized) {
+            inputs.forEach(input => {
+                input.addEventListener('input', calculate);
+            });
+            isInitialized = true;
+        }
         calculate();
     }
 
