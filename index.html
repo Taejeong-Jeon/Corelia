@@ -301,13 +301,23 @@
 
         // 페이지 로드 시 URL에 따라 섹션 설정
         function initializePage() {
+            // 404 리다이렉트 후 sessionStorage 확인
+            const redirectPath = sessionStorage.getItem('redirectPath');
+            if (redirectPath) {
+                sessionStorage.removeItem('redirectPath');
+                // URL을 깔끔하게 업데이트
+                if (window.location.protocol !== 'file:') {
+                    window.history.replaceState({path: redirectPath}, '', '/Corelia/' + redirectPath);
+                }
+            }
+
             const sectionId = getSectionFromURL();
             showSection(sectionId);
-            
+
             // 네비게이션 활성화 상태 설정
             const navLinks = document.querySelectorAll('.nav-link');
             navLinks.forEach(link => link.classList.remove('active'));
-            
+
             // 해당 섹션의 링크 활성화
             if (sectionId === 'ai-tools') {
                 const aiLink = document.querySelector('a[href="/Corelia/AI"]');

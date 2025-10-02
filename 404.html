@@ -6,12 +6,13 @@
     <title>Redirecting...</title>
     <script>
         // GitHub Pages에서 경로 기반 라우팅을 위한 리다이렉트
-        const path = window.location.pathname.replace('/Corelia/', '');
+        const path = window.location.pathname.replace('/Corelia/', '').replace(/\/$/, '');
         if (path) {
-            window.location.href = '/Corelia/#' + path;
-        } else {
-            window.location.href = '/Corelia/';
+            // 경로를 sessionStorage에 저장
+            sessionStorage.setItem('redirectPath', path);
         }
+        // index.html로 리다이렉트 (hash 없이)
+        window.location.replace('/Corelia/');
     </script>
 </head>
 <body>
