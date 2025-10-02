@@ -1,6 +1,6 @@
 // Google Sheets API 유틸리티
 const GoogleSheets = (function() {
-    const API_URL = 'https://script.google.com/macros/s/AKfycbyfPXXtwZ-x9_Og8Srwh3mCOUY3lrz0oMqcVRjn9P5q-gS9vW1eHlSNQjUYLxZxIqiHGQ/exec';
+    const API_URL = 'https://script.google.com/macros/s/AKfycbyM4aMzhCAv3KOZwTeyQwgxDrkYRaLRMFoaOGny2hPv7SHXkMHkcmcq3jAUPbw45djiCw/exec';
 
     // 데이터 로드
     async function load() {
