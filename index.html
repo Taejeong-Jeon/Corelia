@@ -301,6 +301,8 @@
 
         // 페이지 로드 시 URL에 따라 섹션 설정
         function initializePage() {
+            let sectionId;
+
             // 404 리다이렉트 후 sessionStorage 확인
             const redirectPath = sessionStorage.getItem('redirectPath');
             if (redirectPath) {
@@ -309,9 +311,15 @@
                 if (window.location.protocol !== 'file:') {
                     window.history.replaceState({path: redirectPath}, '', '/Corelia/' + redirectPath);
                 }
+                // redirectPath로 직접 섹션 결정
+                if (redirectPath === 'AI') sectionId = 'ai-tools';
+                else if (redirectPath === 'MS-ACCOUNT') sectionId = 'ms-account';
+                else if (redirectPath === 'MS') sectionId = 'ms';
+                else sectionId = 'main';
+            } else {
+                sectionId = getSectionFromURL();
             }
 
-            const sectionId = getSectionFromURL();
             showSection(sectionId);
 
             // 네비게이션 활성화 상태 설정
