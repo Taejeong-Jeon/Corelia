@@ -40,6 +40,7 @@
                     <ul class="submenu" id="ms-submenu">
                         <li><a href="#" onclick="showSection('ms-account'); updateURL('MS-ACCOUNT'); return false;">MS 가계부</a></li>
                         <li><a href="#" onclick="showSection('ms-calculating'); updateURL('MS-CALCULATING'); return false;">MVP작 계산기(아이템)</a></li>
+                        <li><a href="#" onclick="showSection('ms-mepo-calculating'); updateURL('MS-MEPO-CALCULATING'); return false;">MVP작 계산기(메포)</a></li>
                     </ul>
                 </li>
             </ul>
@@ -104,7 +105,14 @@
                         <p>MVP작 아이템 거래 손익을 계산해보세요</p>
                         <button class="tool-btn" onclick="showSection('ms-calculating'); updateURL('MS-CALCULATING'); return false;">시작하기</button>
                     </div>
-                    
+
+                    <div class="tool-card">
+                        <div class="tool-icon">💎</div>
+                        <h4>MVP작 계산기(메포)</h4>
+                        <p>메포 거래 손익을 계산해보세요</p>
+                        <button class="tool-btn" onclick="showSection('ms-mepo-calculating'); updateURL('MS-MEPO-CALCULATING'); return false;">시작하기</button>
+                    </div>
+
                     <div class="tool-card">
                         <div class="tool-icon">🎯</div>
                         <h4>MS 목표</h4>
@@ -261,7 +269,7 @@
                 </div>
             </div>
 
-            <!-- MVP작 계산기 섹션 -->
+            <!-- MVP작 계산기(아이템) 섹션 -->
             <div class="content-body hidden" id="ms-calculating">
                 <div class="calculator-section">
                     <h3>물통 시세</h3>
@@ -324,6 +332,57 @@
                     <button onclick="MSCalculatingMachine.reset()" class="submit-btn" style="margin-top: 20px;">초기화</button>
                 </div>
             </div>
+
+            <!-- MVP작 계산기(메포) 섹션 -->
+            <div class="content-body hidden" id="ms-mepo-calculating">
+                <div class="calculator-section">
+                    <h3>시세 정보</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>메포 시세 (원/1억)</label>
+                            <input type="number" id="mepo-rate" placeholder="예: 2500">
+                        </div>
+                        <div class="form-group">
+                            <label>물통 시세 (원/1억)</label>
+                            <input type="number" id="water-rate-mepo" placeholder="예: 2300">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="calculator-section">
+                    <h3>메포 거래 정보</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>구매한 메소 (억)</label>
+                            <input type="number" id="purchased-meso" placeholder="예: 200" step="0.1">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="calculator-section">
+                    <h3>손익 결과</h3>
+                    <div class="result-cards">
+                        <div class="result-card">
+                            <div class="result-label">사용한 캐시</div>
+                            <div class="result-value" id="cash-used-mepo">0원</div>
+                        </div>
+                        <div class="result-card">
+                            <div class="result-label">받은 캐시</div>
+                            <div class="result-value" id="cash-received-mepo">0원</div>
+                        </div>
+                    </div>
+                    <div class="result-cards" style="margin-top: 16px;">
+                        <div class="result-card">
+                            <div class="result-label">손익</div>
+                            <div class="result-value" id="profit-loss-mepo">0원</div>
+                        </div>
+                        <div class="result-card">
+                            <div class="result-label">수익률</div>
+                            <div class="result-value" id="profit-rate-mepo">0%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </main>
     </div>
 
@@ -340,6 +399,7 @@
     <script src="js/modules/tistory_content_generator.js"></script>
     <script src="js/modules/ms_account_book.js"></script>
     <script src="js/modules/ms_mvp_item_calculating.js"></script>
+    <script src="js/modules/ms_mvp_mepo_calculating.js"></script>
 
     <!-- Main -->
     <script src="js/main.js"></script>
