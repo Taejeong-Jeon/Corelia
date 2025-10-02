@@ -370,19 +370,19 @@
             // 모든 섹션 숨기기
             const sections = document.querySelectorAll('.content-body');
             sections.forEach(section => section.classList.add('hidden'));
-            
+
             // 선택된 섹션 보이기
             document.getElementById(sectionId).classList.remove('hidden');
-            
+
             // 네비게이션 활성화 상태 업데이트
             const navLinks = document.querySelectorAll('.nav-link');
             navLinks.forEach(link => link.classList.remove('active'));
-            
+
             // 현재 클릭된 링크 활성화 (event가 있을 때만)
             if (event && event.currentTarget && event.currentTarget.classList) {
                 event.currentTarget.classList.add('active');
             }
-            
+
             // 페이지 제목 업데이트
             const titles = {
                 'main': { title: 'Corelia', subtitle: 'Core + Intelligence' },
@@ -390,9 +390,14 @@
                 'ms': { title: 'MS', subtitle: '게임 관련 콘텐츠가 준비 중입니다' },
                 'ms-account': { title: 'MS 가계부', subtitle: '메이플스토리 수익 관리 시스템' }
             };
-            
+
             document.getElementById('page-title').textContent = titles[sectionId].title;
             document.getElementById('page-subtitle').textContent = titles[sectionId].subtitle;
+
+            // MS 가계부 섹션일 때 데이터 로드
+            if (sectionId === 'ms-account') {
+                loadTransactions();
+            }
         }
 
         function toggleSubmenu(menuId) {
@@ -542,8 +547,22 @@
 
         // Google Sheets에서 거래 데이터 로드
         async function loadTransactions() {
+            // 먼저 로컬 스토리지에서 데이터 로드하여 즉시 표시
+            const localData = localStorage.getItem('ms-transactions');
+            if (localData) {
+                try {
+                    transactions = JSON.parse(localData);
+                    console.log('로컬 데이터 먼저 표시:', transactions);
+                    updateDashboard();
+                } catch (error) {
+                    console.error('로컬 데이터 파싱 실패:', error);
+                    transactions = [];
+                }
+            }
+
+            // 백그라운드에서 Google Sheets 데이터 로드
             try {
-                console.log('데이터 로드 시작...');
+                console.log('Google Sheets 데이터 로드 시작...');
                 const response = await fetch(GOOGLE_SHEETS_API_URL);
                 console.log('응답 상태:', response.status);
 
@@ -552,12 +571,12 @@
                 }
 
                 const data = await response.json();
-                console.log('로드된 데이터:', data);
+                console.log('Google Sheets에서 로드된 데이터:', data);
 
                 // Google Sheets에 데이터가 있으면 사용
                 if (data && Array.isArray(data) && data.length > 0) {
                     // 데이터 정제: undefined나 빈 값 제거
-                    transactions = data.filter(t => t && t.id && t.date && t.type).map(t => ({
+                    const sheetsTransactions = data.filter(t => t && t.id && t.date && t.type).map(t => ({
                         id: String(t.id || ''),
                         date: String(t.date || ''),
                         type: String(t.type || ''),
@@ -570,26 +589,18 @@
                         sellMeso: t.sellMeso ? parseFloat(t.sellMeso) : undefined,
                         salesAmount: t.salesAmount ? parseInt(t.salesAmount) : undefined
                     }));
-                    // 로컬 스토리지에도 저장
+
+                    // Google Sheets 데이터로 업데이트
+                    transactions = sheetsTransactions;
                     localStorage.setItem('ms-transactions', JSON.stringify(transactions));
-                    console.log('Google Sheets 데이터 사용:', transactions);
+                    console.log('Google Sheets 데이터로 업데이트:', transactions);
+                    updateDashboard();
                 } else {
-                    console.log('Google Sheets가 비어있음, 로컬 데이터 로드');
-                    const localData = localStorage.getItem('ms-transactions');
-                    if (localData) {
-                        transactions = JSON.parse(localData);
-                    }
+                    console.log('Google Sheets가 비어있음');
                 }
-                updateDashboard();
             } catch (error) {
-                console.error('데이터 로드 실패:', error);
-                // 로컬 스토리지에서 데이터 로드 시도
-                const localData = localStorage.getItem('ms-transactions');
-                if (localData) {
-                    transactions = JSON.parse(localData);
-                    console.log('로컬 데이터 로드:', transactions);
-                }
-                updateDashboard();
+                console.error('Google Sheets 로드 실패:', error);
+                console.log('로컬 데이터 계속 사용');
             }
         }
 
