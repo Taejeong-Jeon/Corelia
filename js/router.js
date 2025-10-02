@@ -127,7 +127,7 @@ function showSection(sectionId, event) {
         'ai-tools': { title: 'AI 활용하기', subtitle: 'Corelia의 AI 도구들을 활용해보세요' },
         'ms': { title: 'MS', subtitle: '게임 관련 콘텐츠가 준비 중입니다' },
         'ms-account': { title: 'MS 가계부', subtitle: '메이플스토리 수익 관리 시스템' },
-        'ms-calculating': { title: 'MVP작 계산기', subtitle: 'MVP작 거래 손익을 계산해보세요' }
+        'ms-calculating': { title: 'MVP작 계산기(아이템)', subtitle: 'MVP작 아이템 거래 손익을 계산해보세요' }
     };
 
     document.getElementById('page-title').textContent = titles[sectionId].title;
