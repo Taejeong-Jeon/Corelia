@@ -2,9 +2,13 @@
 document.addEventListener('DOMContentLoaded', function() {
     // 사이드바 상태 복원
     const sidebarCollapsed = localStorage.getItem('sidebar-collapsed') === 'true';
+    const hamburgerBtn = document.querySelector('.hamburger-btn');
     if (sidebarCollapsed) {
         document.querySelector('.sidebar').classList.add('collapsed');
-        document.querySelector('.hamburger-btn').classList.add('active');
+        hamburgerBtn.classList.add('active');
+        hamburgerBtn.style.left = '0.75rem';
+    } else {
+        hamburgerBtn.style.left = '244px';
     }
 
     // 페이지 로드 시 로컬 스토리지에서 데이터 로드
@@ -38,7 +42,14 @@ function toggleSidebar() {
     sidebar.classList.toggle('collapsed');
     hamburgerBtn.classList.toggle('active');
 
-    // 상태를 로컬 스토리지에 저장
+    // 햄버거 버튼 위치 조정
     const isCollapsed = sidebar.classList.contains('collapsed');
+    if (isCollapsed) {
+        hamburgerBtn.style.left = '0.75rem';
+    } else {
+        hamburgerBtn.style.left = '244px';
+    }
+
+    // 상태를 로컬 스토리지에 저장
     localStorage.setItem('sidebar-collapsed', isCollapsed);
 }
