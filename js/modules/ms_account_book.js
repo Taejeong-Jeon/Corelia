@@ -1,10 +1,9 @@
 // MS 가계부 모듈
-const MSAccount = (function() {
+const MSAccountBook = (function() {
     // 비공개 변수
     let currentYear = 2025;
     let currentMonth = 10;
     let transactions = [];
-    const GOOGLE_SHEETS_API_URL = 'https://script.google.com/macros/s/AKfycbyfPXXtwZ-x9_Og8Srwh3mCOUY3lrz0oMqcVRjn9P5q-gS9vW1eHlSNQjUYLxZxIqiHGQ/exec';
 
     // 거래 유형에 따른 필드 표시/숨김
     function toggleFields() {
@@ -109,16 +108,7 @@ const MSAccount = (function() {
 
         // 백그라운드에서 Google Sheets 데이터 로드
         try {
-            console.log('Google Sheets 데이터 로드 시작...');
-            const response = await fetch(GOOGLE_SHEETS_API_URL);
-            console.log('응답 상태:', response.status);
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            const data = await response.json();
-            console.log('Google Sheets에서 로드된 데이터:', data);
+            const data = await GoogleSheets.load();
 
             // Google Sheets에 데이터가 있으면 사용
             if (data && Array.isArray(data) && data.length > 0) {
@@ -176,18 +166,8 @@ const MSAccount = (function() {
         localStorage.setItem('ms-transactions', JSON.stringify(transactions));
         updateDashboard();
 
-        // Google Sheets에 백그라운드로 저장 (응답 무시)
-        fetch(GOOGLE_SHEETS_API_URL, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'text/plain',
-            },
-            body: JSON.stringify(newTransaction)
-        }).then(() => {
-            console.log('Google Sheets 저장 요청 완료');
-        }).catch(error => {
-            console.log('Google Sheets 저장 요청 실패 (무시됨):', error);
-        });
+        // Google Sheets에 백그라운드로 저장
+        await GoogleSheets.save(newTransaction);
 
         alert('저장되었습니다!');
     }
@@ -220,17 +200,17 @@ const MSAccount = (function() {
             return date.getFullYear() === currentYear && date.getMonth() + 1 === currentMonth;
         });
 
-        // 충전 총액 (지출이므로 마이너스)
+        // 충전 총액
         const totalCharge = monthTransactions
             .filter(t => t.type === 'charge')
             .reduce((sum, t) => sum + (parseInt(t.chargeAmount) || 0), 0);
 
-        // 판매 총 금액 (수입이므로 플러스)
+        // 판매 총 금액
         const totalSales = monthTransactions
             .filter(t => t.type === 'sell')
             .reduce((sum, t) => sum + (parseInt(t.salesAmount) || 0), 0);
 
-        // 손익 계산: 판매금액(+) - 충전금액(-)
+        // 손익 계산
         const profitLoss = totalSales - totalCharge;
 
         document.getElementById('total-charge').textContent = `${totalCharge.toLocaleString()}원`;
@@ -241,11 +221,11 @@ const MSAccount = (function() {
 
         // 손익에 따른 색상 변경
         if (profitLoss > 0) {
-            profitLossElement.style.color = '#007bff'; // 파란색 (수익)
+            profitLossElement.style.color = '#007bff';
         } else if (profitLoss < 0) {
-            profitLossElement.style.color = '#dc3545'; // 빨간색 (손해)
+            profitLossElement.style.color = '#dc3545';
         } else {
-            profitLossElement.style.color = '#6c757d'; // 회색 (손익 없음)
+            profitLossElement.style.color = '#6c757d';
         }
 
         updateTransactionTable();
@@ -331,7 +311,7 @@ const MSAccount = (function() {
                 <td style="color: ${resultColor}">${resultText}</td>
                 <td>${transaction.memo || '-'}</td>
                 <td>
-                    <button onclick="MSAccount.deleteTransaction('${transaction.id}')" class="delete-btn">삭제</button>
+                    <button onclick="MSAccountBook.deleteTransaction('${transaction.id}')" class="delete-btn">삭제</button>
                 </td>
             `;
             tbody.appendChild(row);
@@ -342,38 +322,16 @@ const MSAccount = (function() {
     async function deleteTransaction(id) {
         if (confirm('정말 삭제하시겠습니까?')) {
             try {
-                console.log('삭제 전 거래 목록:', transactions);
-                console.log('삭제할 ID:', id, '타입:', typeof id);
-
-                // ID 타입 통일 (문자열로 변환)
                 const targetId = String(id);
 
                 // 로컬에서 삭제
-                const beforeCount = transactions.length;
                 transactions = transactions.filter(t => String(t.id) !== targetId);
-                const afterCount = transactions.length;
-
-                console.log('삭제 전 개수:', beforeCount, '삭제 후 개수:', afterCount);
-
-                // 로컬 스토리지에 저장
                 localStorage.setItem('ms-transactions', JSON.stringify(transactions));
-
-                // 대시보드 업데이트
                 updateDashboard();
 
-                // Google Sheets에서 삭제 (백그라운드)
-                fetch(`${GOOGLE_SHEETS_API_URL}?action=delete&id=${targetId}`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'text/plain',
-                    }
-                }).then(() => {
-                    console.log('Google Sheets 삭제 요청 완료');
-                }).catch(error => {
-                    console.log('Google Sheets 삭제 요청 실패 (무시됨):', error);
-                });
+                // Google Sheets에서 삭제
+                await GoogleSheets.remove(targetId);
 
-                console.log('삭제 완료:', id);
                 alert('거래가 삭제되었습니다!');
             } catch (error) {
                 console.error('삭제 실패:', error);
@@ -393,4 +351,4 @@ const MSAccount = (function() {
 })();
 
 // 전역으로 노출
-window.MSAccount = MSAccount;
+window.MSAccountBook = MSAccountBook;

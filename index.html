@@ -147,9 +147,9 @@
                 <!-- 월별 대시보드 -->
                 <div class="dashboard-section">
                     <div class="month-selector">
-                        <button onclick="MSAccount.changeMonth(-1)" class="month-btn">◀</button>
+                        <button onclick="MSAccountBook.changeMonth(-1)" class="month-btn">◀</button>
                         <h2 id="current-month">2025년 10월</h2>
-                        <button onclick="MSAccount.changeMonth(1)" class="month-btn">▶</button>
+                        <button onclick="MSAccountBook.changeMonth(1)" class="month-btn">▶</button>
                     </div>
                     
                     <div class="dashboard-cards">
@@ -179,7 +179,7 @@
                             </div>
                             <div class="form-group">
                                 <label>거래 유형</label>
-                                <select id="transaction-type" required onchange="MSAccount.toggleFields()">
+                                <select id="transaction-type" required onchange="MSAccountBook.toggleFields()">
                                     <option value="">선택하세요</option>
                                     <option value="charge">충전</option>
                                     <option value="convert">전환</option>
@@ -263,8 +263,19 @@
     </div>
 
     <!-- External JavaScript Files -->
+    <!-- Utilities -->
+    <script src="js/utils/google-sheets.js"></script>
+
+    <!-- Router -->
     <script src="js/router.js"></script>
-    <script src="js/modules/ms-account.js"></script>
+
+    <!-- Modules -->
+    <script src="js/modules/novel_generator.js"></script>
+    <script src="js/modules/tistory_title_generator.js"></script>
+    <script src="js/modules/tistory_content_generator.js"></script>
+    <script src="js/modules/ms_account_book.js"></script>
+
+    <!-- Main -->
     <script src="js/main.js"></script>
 </body>
 </html>

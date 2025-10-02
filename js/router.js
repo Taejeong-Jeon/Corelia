@@ -131,8 +131,8 @@ function showSection(sectionId, event) {
 
     // MS 가계부 섹션일 때 데이터 로드
     if (sectionId === 'ms-account') {
-        if (window.MSAccount && window.MSAccount.loadTransactions) {
-            window.MSAccount.loadTransactions();
+        if (window.MSAccountBook && window.MSAccountBook.loadTransactions) {
+            window.MSAccountBook.loadTransactions();
         }
     }
 }

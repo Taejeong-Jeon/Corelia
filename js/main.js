@@ -11,6 +11,12 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    // 라우터 초기화
     initializePage();
-    MSAccount.initialize();
+
+    // 모듈 초기화
+    if (window.MSAccountBook) MSAccountBook.initialize();
+    if (window.NovelGenerator) NovelGenerator.initialize();
+    if (window.TistoryTitleGenerator) TistoryTitleGenerator.initialize();
+    if (window.TistoryContentGenerator) TistoryContentGenerator.initialize();
 });
