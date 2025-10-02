@@ -109,8 +109,6 @@ const MSAccountBook = (function() {
         }
 
         // 전체 거래 데이터 계산 (월별 제한 없음)
-        console.log('MS 메인 섹션 - transactions:', transactions);
-
         const totalCharge = transactions
             .filter(t => t.type === 'charge')
             .reduce((sum, t) => sum + (parseInt(t.chargeAmount) || 0), 0);
@@ -118,8 +116,6 @@ const MSAccountBook = (function() {
         const totalSales = transactions
             .filter(t => t.type === 'sell')
             .reduce((sum, t) => sum + (parseInt(t.salesAmount) || 0), 0);
-
-        console.log('MS 메인 섹션 - 총 충전:', totalCharge, '총 판매:', totalSales);
 
         const totalProfit = totalSales - totalCharge;
 
