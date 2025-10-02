@@ -148,6 +148,16 @@ body {
     transform: translateX(5px);
 }
 
+/* 버전 표시 */
+.version {
+    position: absolute;
+    bottom: 1rem;
+    left: 1.5rem;
+    font-size: 0.75rem;
+    color: #a0aec0;
+    font-weight: 500;
+}
+
 /* 메인 콘텐츠 */
 .main-content {
     flex: 1;
