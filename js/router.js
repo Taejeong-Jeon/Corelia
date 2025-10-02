@@ -143,6 +143,13 @@ function showSection(sectionId, event) {
             window.MSAccountBook.loadTransactions();
         }
     }
+
+    // MVP작 계산기(메포) 섹션일 때 초기화
+    if (sectionId === 'ms-mepo-calculating') {
+        if (window.MSMepoCalculating && window.MSMepoCalculating.initialize) {
+            window.MSMepoCalculating.initialize();
+        }
+    }
 }
 
 function toggleSubmenu(menuId) {
