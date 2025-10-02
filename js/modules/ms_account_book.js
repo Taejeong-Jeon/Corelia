@@ -115,27 +115,46 @@ const MSAccountBook = (function() {
                 // 데이터 정제: undefined나 빈 값 제거
                 const sheetsTransactions = data.filter(t => t && t.id && t.date && t.type).map(t => {
                     // 날짜 형식 변환 (ISO 형식 -> YYYY-MM-DD)
-                    let formattedDate = t.date;
-                    if (t.date.includes('T')) {
-                        const dateObj = new Date(t.date);
-                        const year = dateObj.getFullYear();
-                        const month = String(dateObj.getMonth() + 1).padStart(2, '0');
-                        const day = String(dateObj.getDate()).padStart(2, '0');
-                        formattedDate = `${year}-${month}-${day}`;
+                    let formattedDate = String(t.date || '');
+
+                    // ISO 형식이거나 Date 객체인 경우 변환
+                    if (formattedDate.includes('T') || formattedDate.includes('Z')) {
+                        try {
+                            const dateObj = new Date(formattedDate);
+                            const year = dateObj.getFullYear();
+                            const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+                            const day = String(dateObj.getDate()).padStart(2, '0');
+                            formattedDate = `${year}-${month}-${day}`;
+                        } catch (e) {
+                            console.error('날짜 변환 실패:', formattedDate, e);
+                        }
                     }
+
+                    // 안전한 값 변환
+                    const safeInt = (val) => {
+                        if (val === null || val === undefined || val === '') return undefined;
+                        const num = parseInt(val);
+                        return isNaN(num) ? undefined : num;
+                    };
+
+                    const safeFloat = (val) => {
+                        if (val === null || val === undefined || val === '') return undefined;
+                        const num = parseFloat(val);
+                        return isNaN(num) ? undefined : num;
+                    };
 
                     return {
                         id: String(t.id || ''),
                         date: formattedDate,
                         type: String(t.type || ''),
                         memo: String(t.memo || ''),
-                        chargeAmount: t.chargeAmount ? parseInt(t.chargeAmount) : undefined,
-                        mepoRate: t.mepoRate ? parseInt(t.mepoRate) : undefined,
-                        mesoAmount: t.mesoAmount ? parseFloat(t.mesoAmount) : undefined,
-                        convertCost: t.convertCost ? parseInt(t.convertCost) : undefined,
-                        waterRate: t.waterRate ? parseInt(t.waterRate) : undefined,
-                        sellMeso: t.sellMeso ? parseFloat(t.sellMeso) : undefined,
-                        salesAmount: t.salesAmount ? parseInt(t.salesAmount) : undefined
+                        chargeAmount: safeInt(t.chargeAmount),
+                        mepoRate: safeInt(t.mepoRate),
+                        mesoAmount: safeFloat(t.mesoAmount),
+                        convertCost: safeInt(t.convertCost),
+                        waterRate: safeInt(t.waterRate),
+                        sellMeso: safeFloat(t.sellMeso),
+                        salesAmount: safeInt(t.salesAmount)
                     };
                 });
 
