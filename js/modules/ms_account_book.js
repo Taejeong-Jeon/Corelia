@@ -66,7 +66,48 @@ const MSAccountBook = (function() {
         }
     }
 
-    function updateMSTotalSummary() {
+    async function updateMSTotalSummary() {
+        // Google Sheets에서 데이터 먼저 로드
+        try {
+            const sheetsData = await GoogleSheets.getAll();
+            if (sheetsData && sheetsData.length > 0) {
+                const sheetsTransactions = sheetsData.map(t => {
+                    const formattedDate = t.date ? new Date(t.date).toISOString().split('T')[0] : '';
+
+                    const safeInt = (val) => {
+                        if (val === null || val === undefined || val === '') return undefined;
+                        const num = parseInt(val);
+                        return isNaN(num) ? undefined : num;
+                    };
+
+                    const safeFloat = (val) => {
+                        if (val === null || val === undefined || val === '') return undefined;
+                        const num = parseFloat(val);
+                        return isNaN(num) ? undefined : num;
+                    };
+
+                    return {
+                        id: String(t.id || ''),
+                        date: formattedDate,
+                        type: String(t.type || ''),
+                        memo: String(t.memo || ''),
+                        chargeAmount: safeInt(t.chargeAmount),
+                        mepoRate: safeInt(t.mepoRate),
+                        mesoAmount: safeFloat(t.mesoAmount),
+                        convertCost: safeInt(t.convertCost),
+                        waterRate: safeInt(t.waterRate),
+                        sellMeso: safeFloat(t.sellMeso),
+                        salesAmount: safeInt(t.salesAmount)
+                    };
+                });
+
+                transactions = sheetsTransactions;
+                localStorage.setItem('ms-transactions', JSON.stringify(transactions));
+            }
+        } catch (error) {
+            console.error('Google Sheets 로드 실패:', error);
+        }
+
         // 전체 거래 데이터 계산 (월별 제한 없음)
         const totalCharge = transactions
             .filter(t => t.type === 'charge')
