@@ -139,8 +139,12 @@ function showSection(sectionId, event) {
 
     // MS 메인 섹션일 때 총 합산 업데이트
     if (sectionId === 'ms') {
+        console.log('MS 메인 섹션 로드됨');
         if (window.MSAccountBook && window.MSAccountBook.updateMSTotalSummary) {
+            console.log('updateMSTotalSummary 호출');
             window.MSAccountBook.updateMSTotalSummary();
+        } else {
+            console.log('MSAccountBook 또는 updateMSTotalSummary를 찾을 수 없음:', window.MSAccountBook);
         }
     }
 
