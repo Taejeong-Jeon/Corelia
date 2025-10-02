@@ -20,7 +20,7 @@ const MSAccountBook = (function() {
             document.getElementById('charge-amount').required = true;
         } else if (transactionType === 'convert') {
             document.getElementById('convert-fields').style.display = 'block';
-            document.getElementById('mepo-rate').required = true;
+            document.getElementById('ms-account-mepo-rate').required = true;
             document.getElementById('meso-amount').required = true;
         } else if (transactionType === 'sell') {
             document.getElementById('sell-fields').style.display = 'block';
@@ -30,7 +30,7 @@ const MSAccountBook = (function() {
 
         // 다른 필드들의 required 해제
         document.getElementById('charge-amount').required = false;
-        document.getElementById('mepo-rate').required = false;
+        document.getElementById('ms-account-mepo-rate').required = false;
         document.getElementById('meso-amount').required = false;
         document.getElementById('water-rate').required = false;
         document.getElementById('sell-meso').required = false;
@@ -269,7 +269,7 @@ const MSAccountBook = (function() {
         if (transactionType === 'charge') {
             transaction.chargeAmount = parseInt(document.getElementById('charge-amount').value);
         } else if (transactionType === 'convert') {
-            transaction.mepoRate = parseInt(document.getElementById('mepo-rate').value);
+            transaction.mepoRate = parseInt(document.getElementById('ms-account-mepo-rate').value);
             transaction.mesoAmount = parseFloat(document.getElementById('meso-amount').value);
             transaction.convertCost = transaction.mepoRate * transaction.mesoAmount;
         } else if (transactionType === 'sell') {

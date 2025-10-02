@@ -2,21 +2,21 @@
 const MSMepoCalculating = (function() {
 
     function initialize() {
-        console.log('메포 계산기 모듈 초기화');
-
         // 입력 필드 이벤트 리스너
-        const mepoRate = document.getElementById('mepo-rate');
-        const waterRate = document.getElementById('water-rate-mepo');
-        const purchasedMeso = document.getElementById('purchased-meso');
+        const inputMepoRate = document.getElementById('mepo-rate');
+        const inputWaterRate = document.getElementById('water-rate-mepo');
+        const inputPurchasedMeso = document.getElementById('purchased-meso');
 
-        if (mepoRate) {
-            mepoRate.addEventListener('input', calculate);
+        if (inputMepoRate) {
+            inputMepoRate.addEventListener('input', calculate);
         }
-        if (waterRate) {
-            waterRate.addEventListener('input', calculate);
+
+        if (inputWaterRate) {
+            inputWaterRate.addEventListener('input', calculate);
         }
-        if (purchasedMeso) {
-            purchasedMeso.addEventListener('input', calculate);
+
+        if (inputPurchasedMeso) {
+            inputPurchasedMeso.addEventListener('input', calculate);
         }
     }
 
@@ -27,16 +27,16 @@ const MSMepoCalculating = (function() {
         const waterRate = parseFloat(document.getElementById('water-rate-mepo').value) || 0;
         const purchasedMeso = parseFloat(document.getElementById('purchased-meso').value) || 0;
 
-        // 계산
+        // 사용 금액 = 메포 시세 × 구매한 메소
         const cashUsed = mepoRate * purchasedMeso;
-        const cashReceived = waterRate * purchasedMeso;
-        const profitLoss = cashReceived - cashUsed;
-        const profitRate = cashUsed > 0 ? (profitLoss / cashUsed * 100) : 0;
-
-        // 결과 업데이트
         document.getElementById('cash-used-mepo').textContent = `${cashUsed.toLocaleString()}원`;
+
+        // 판매 금액 = 물통 시세 × 구매한 메소
+        const cashReceived = waterRate * purchasedMeso;
         document.getElementById('cash-received-mepo').textContent = `${cashReceived.toLocaleString()}원`;
 
+        // 손익 계산
+        const profitLoss = cashReceived - cashUsed;
         const profitElement = document.getElementById('profit-loss-mepo');
         profitElement.textContent = `${profitLoss >= 0 ? '+' : ''}${profitLoss.toLocaleString()}원`;
 
@@ -49,16 +49,12 @@ const MSMepoCalculating = (function() {
             profitElement.style.color = '#6b7280';
         }
 
-        // 수익률
-        const profitRateElement = document.getElementById('profit-rate-mepo');
-        profitRateElement.textContent = `${profitRate >= 0 ? '+' : ''}${profitRate.toFixed(2)}%`;
-
-        if (profitRate > 0) {
-            profitRateElement.style.color = '#10b981';
-        } else if (profitRate < 0) {
-            profitRateElement.style.color = '#ef4444';
+        // 수익률 계산
+        if (cashUsed > 0) {
+            const profitRate = (profitLoss / cashUsed * 100).toFixed(2);
+            document.getElementById('profit-rate-mepo').textContent = `${profitRate >= 0 ? '+' : ''}${profitRate}%`;
         } else {
-            profitRateElement.style.color = '#6b7280';
+            document.getElementById('profit-rate-mepo').textContent = '0%';
         }
     }
 
@@ -77,6 +73,7 @@ const MSMepoCalculating = (function() {
     // 공개 API
     return {
         initialize: initialize,
+        calculate: calculate,
         reset: reset
     };
 })();
