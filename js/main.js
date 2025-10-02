@@ -16,6 +16,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // 모듈 초기화
     if (window.MSAccountBook) MSAccountBook.initialize();
+    if (window.MSCalculatingMachine) MSCalculatingMachine.initialize();
     if (window.NovelGenerator) NovelGenerator.initialize();
     if (window.TistoryTitleGenerator) TistoryTitleGenerator.initialize();
     if (window.TistoryContentGenerator) TistoryContentGenerator.initialize();

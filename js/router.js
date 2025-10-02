@@ -18,6 +18,7 @@ function getSectionFromURL() {
     const hash = window.location.hash;
     if (hash === '#AI') return 'ai-tools';
     if (hash === '#MS-ACCOUNT') return 'ms-account';
+    if (hash === '#MS-CALCULATING') return 'ms-calculating';
     if (hash === '#MS') return 'ms';
 
     // 로컬 파일이면 여기서 종료
@@ -29,6 +30,7 @@ function getSectionFromURL() {
     const path = window.location.pathname;
     if (path.includes('/AI')) return 'ai-tools';
     if (path.includes('/MS-ACCOUNT')) return 'ms-account';
+    if (path.includes('/MS-CALCULATING')) return 'ms-calculating';
     if (path.includes('/MS')) return 'ms';
 
     return 'main';
@@ -49,6 +51,7 @@ function initializePage() {
         // redirectPath로 직접 섹션 결정
         if (redirectPath === 'AI') sectionId = 'ai-tools';
         else if (redirectPath === 'MS-ACCOUNT') sectionId = 'ms-account';
+        else if (redirectPath === 'MS-CALCULATING') sectionId = 'ms-calculating';
         else if (redirectPath === 'MS') sectionId = 'ms';
         else sectionId = 'main';
     } else {
@@ -123,7 +126,8 @@ function showSection(sectionId, event) {
         'main': { title: 'Corelia', subtitle: 'Core + Intelligence' },
         'ai-tools': { title: 'AI 활용하기', subtitle: 'Corelia의 AI 도구들을 활용해보세요' },
         'ms': { title: 'MS', subtitle: '게임 관련 콘텐츠가 준비 중입니다' },
-        'ms-account': { title: 'MS 가계부', subtitle: '메이플스토리 수익 관리 시스템' }
+        'ms-account': { title: 'MS 가계부', subtitle: '메이플스토리 수익 관리 시스템' },
+        'ms-calculating': { title: 'MVP작 계산기', subtitle: 'MVP작 거래 손익을 계산해보세요' }
     };
 
     document.getElementById('page-title').textContent = titles[sectionId].title;

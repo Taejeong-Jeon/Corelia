@@ -630,3 +630,72 @@ body {
         font-size: 16px;
     }
 }
+/* MVP작 계산기 스타일 */
+.calculator-section {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.calculator-section h3 {
+    color: #2d3748;
+    margin-bottom: 16px;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.calculated-value {
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #2d3748;
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+}
+
+.result-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-top: 16px;
+}
+
+.result-card {
+    background: #f7fafc;
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    border: 2px solid #e2e8f0;
+    transition: all 0.3s ease;
+}
+
+.result-card:hover {
+    border-color: #667eea;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+}
+
+.result-label {
+    font-size: 14px;
+    color: #718096;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.result-value {
+    font-size: 24px;
+    font-weight: 700;
+    color: #2d3748;
+}
+
+@media (max-width: 768px) {
+    .result-cards {
+        grid-template-columns: 1fr;
+    }
+}
