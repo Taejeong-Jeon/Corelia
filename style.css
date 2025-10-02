@@ -25,17 +25,17 @@ body {
     top: 0.75rem;
     left: 0.75rem;
     z-index: 1001;
-    width: 28px;
-    height: 28px;
+    width: 24px;
+    height: 24px;
     background: rgba(255, 255, 255, 0.9);
     border: none;
-    border-radius: 5px;
+    border-radius: 4px;
     cursor: pointer;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    gap: 3px;
+    gap: 2.5px;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
     transition: all 0.3s ease;
 }
@@ -47,7 +47,7 @@ body {
 
 .hamburger-btn span {
     display: block;
-    width: 13px;
+    width: 12px;
     height: 1.5px;
     background: #667eea;
     border-radius: 1px;
@@ -55,7 +55,7 @@ body {
 }
 
 .hamburger-btn.active span:nth-child(1) {
-    transform: rotate(45deg) translate(3px, 3px);
+    transform: rotate(45deg) translate(2.5px, 2.5px);
 }
 
 .hamburger-btn.active span:nth-child(2) {
@@ -63,7 +63,7 @@ body {
 }
 
 .hamburger-btn.active span:nth-child(3) {
-    transform: rotate(-45deg) translate(3px, -3px);
+    transform: rotate(-45deg) translate(2.5px, -2.5px);
 }
 
 /* 좌측 사이드바 */
