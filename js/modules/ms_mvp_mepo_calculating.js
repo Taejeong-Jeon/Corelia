@@ -1,66 +1,58 @@
+// MVP작 계산기(메포) 모듈
 const MSMepoCalculating = (function() {
-    let isInitialized = false;
 
     function initialize() {
-        const inputs = document.querySelectorAll('#ms-mepo-calculating input');
+        console.log('메포 계산기 모듈 초기화');
 
-        if (inputs.length === 0) {
-            return;
-        }
+        // 입력 필드 이벤트 리스너
+        const mepoRate = document.getElementById('mepo-rate');
+        const waterRate = document.getElementById('water-rate-mepo');
+        const purchasedMeso = document.getElementById('purchased-meso');
 
-        if (!isInitialized) {
-            inputs.forEach(input => {
-                input.addEventListener('input', calculate);
-            });
-            isInitialized = true;
+        if (mepoRate) {
+            mepoRate.addEventListener('input', calculate);
         }
-        calculate();
+        if (waterRate) {
+            waterRate.addEventListener('input', calculate);
+        }
+        if (purchasedMeso) {
+            purchasedMeso.addEventListener('input', calculate);
+        }
     }
 
+    // 계산 함수
     function calculate() {
         // 입력값 가져오기
-        const mepoRateInput = document.getElementById('mepo-rate');
-        const waterRateInput = document.getElementById('water-rate-mepo');
-        const purchasedMesoInput = document.getElementById('purchased-meso');
+        const mepoRate = parseFloat(document.getElementById('mepo-rate').value) || 0;
+        const waterRate = parseFloat(document.getElementById('water-rate-mepo').value) || 0;
+        const purchasedMeso = parseFloat(document.getElementById('purchased-meso').value) || 0;
 
-        if (!mepoRateInput || !waterRateInput || !purchasedMesoInput) {
-            return;
-        }
-
-        const mepoRate = parseFloat(mepoRateInput.value) || 0;
-        const waterRate = parseFloat(waterRateInput.value) || 0;
-        const purchasedMeso = parseFloat(purchasedMesoInput.value) || 0;
-
-        // 계산: 사용 금액 = 메포 시세 × 구매한 메소
+        // 계산
         const cashUsed = mepoRate * purchasedMeso;
-        // 판매 금액 = 물통 시세 × 구매한 메소
         const cashReceived = waterRate * purchasedMeso;
         const profitLoss = cashReceived - cashUsed;
-        const profitRate = cashUsed > 0 ? ((profitLoss / cashUsed) * 100) : 0;
+        const profitRate = cashUsed > 0 ? (profitLoss / cashUsed * 100) : 0;
 
         // 결과 업데이트
-        const cashUsedElement = document.getElementById('cash-used-mepo');
-        const cashReceivedElement = document.getElementById('cash-received-mepo');
-        const profitLossElement = document.getElementById('profit-loss-mepo');
-        const profitRateElement = document.getElementById('profit-rate-mepo');
+        document.getElementById('cash-used-mepo').textContent = `${cashUsed.toLocaleString()}원`;
+        document.getElementById('cash-received-mepo').textContent = `${cashReceived.toLocaleString()}원`;
 
-        if (!cashUsedElement || !cashReceivedElement || !profitLossElement || !profitRateElement) {
-            return;
-        }
+        const profitElement = document.getElementById('profit-loss-mepo');
+        profitElement.textContent = `${profitLoss >= 0 ? '+' : ''}${profitLoss.toLocaleString()}원`;
 
-        cashUsedElement.textContent = cashUsed.toLocaleString('ko-KR') + '원';
-        cashReceivedElement.textContent = cashReceived.toLocaleString('ko-KR') + '원';
-        profitLossElement.textContent = profitLoss.toLocaleString('ko-KR') + '원';
-
+        // 손익에 따른 색상 변경
         if (profitLoss > 0) {
-            profitLossElement.style.color = '#10b981';
+            profitElement.style.color = '#10b981';
         } else if (profitLoss < 0) {
-            profitLossElement.style.color = '#ef4444';
+            profitElement.style.color = '#ef4444';
         } else {
-            profitLossElement.style.color = '#6b7280';
+            profitElement.style.color = '#6b7280';
         }
 
-        profitRateElement.textContent = profitRate.toFixed(2) + '%';
+        // 수익률
+        const profitRateElement = document.getElementById('profit-rate-mepo');
+        profitRateElement.textContent = `${profitRate >= 0 ? '+' : ''}${profitRate.toFixed(2)}%`;
+
         if (profitRate > 0) {
             profitRateElement.style.color = '#10b981';
         } else if (profitRate < 0) {
@@ -70,8 +62,22 @@ const MSMepoCalculating = (function() {
         }
     }
 
+    // 초기화 버튼
+    function reset() {
+        document.getElementById('mepo-rate').value = '';
+        document.getElementById('water-rate-mepo').value = '';
+        document.getElementById('purchased-meso').value = '';
+
+        document.getElementById('cash-used-mepo').textContent = '0원';
+        document.getElementById('cash-received-mepo').textContent = '0원';
+        document.getElementById('profit-loss-mepo').textContent = '0원';
+        document.getElementById('profit-rate-mepo').textContent = '0%';
+    }
+
+    // 공개 API
     return {
-        initialize: initialize
+        initialize: initialize,
+        reset: reset
     };
 })();
 
