@@ -19,6 +19,53 @@ body {
     min-height: 100vh;
 }
 
+/* 햄버거 버튼 */
+.hamburger-btn {
+    position: fixed;
+    top: 1.5rem;
+    left: 1.5rem;
+    z-index: 1001;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.95);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
+}
+
+.hamburger-btn:hover {
+    background: white;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+.hamburger-btn span {
+    display: block;
+    width: 20px;
+    height: 2px;
+    background: #667eea;
+    border-radius: 2px;
+    transition: all 0.3s ease;
+}
+
+.hamburger-btn.active span:nth-child(1) {
+    transform: rotate(45deg) translate(5px, 5px);
+}
+
+.hamburger-btn.active span:nth-child(2) {
+    opacity: 0;
+}
+
+.hamburger-btn.active span:nth-child(3) {
+    transform: rotate(-45deg) translate(5px, -5px);
+}
+
 /* 좌측 사이드바 */
 .sidebar {
     width: 280px;
@@ -30,6 +77,11 @@ body {
     height: 100vh;
     overflow-y: auto;
     z-index: 1000;
+    transition: transform 0.3s ease;
+}
+
+.sidebar.collapsed {
+    transform: translateX(-280px);
 }
 
 .sidebar-header {
@@ -174,6 +226,11 @@ body {
     background: rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(20px);
     min-height: 100vh;
+    transition: margin-left 0.3s ease;
+}
+
+.sidebar.collapsed ~ .main-content {
+    margin-left: 0;
 }
 
 .content-header {

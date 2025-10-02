@@ -1,5 +1,12 @@
 // 페이지 로드 시 초기화
 document.addEventListener('DOMContentLoaded', function() {
+    // 사이드바 상태 복원
+    const sidebarCollapsed = localStorage.getItem('sidebar-collapsed') === 'true';
+    if (sidebarCollapsed) {
+        document.querySelector('.sidebar').classList.add('collapsed');
+        document.querySelector('.hamburger-btn').classList.add('active');
+    }
+
     // 페이지 로드 시 로컬 스토리지에서 데이터 로드
     const localData = localStorage.getItem('ms-transactions');
     if (localData) {
@@ -22,3 +29,16 @@ document.addEventListener('DOMContentLoaded', function() {
     // 라우터 초기화 (모듈 로드 후)
     initializePage();
 });
+
+// 사이드바 토글 함수
+function toggleSidebar() {
+    const sidebar = document.querySelector('.sidebar');
+    const hamburgerBtn = document.querySelector('.hamburger-btn');
+
+    sidebar.classList.toggle('collapsed');
+    hamburgerBtn.classList.toggle('active');
+
+    // 상태를 로컬 스토리지에 저장
+    const isCollapsed = sidebar.classList.contains('collapsed');
+    localStorage.setItem('sidebar-collapsed', isCollapsed);
+}
