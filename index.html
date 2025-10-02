@@ -526,20 +526,39 @@
                 console.log('데이터 로드 시작...');
                 const response = await fetch(GOOGLE_SHEETS_API_URL);
                 console.log('응답 상태:', response.status);
-                
+
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
-                
+
                 const data = await response.json();
                 console.log('로드된 데이터:', data);
-                
-                // Google Sheets에 데이터가 있으면 사용, 없으면 로컬 데이터 유지
-                if (data && data.length > 0) {
-                    transactions = data;
+
+                // Google Sheets에 데이터가 있으면 사용
+                if (data && Array.isArray(data) && data.length > 0) {
+                    // 데이터 정제: undefined나 빈 값 제거
+                    transactions = data.filter(t => t && t.id && t.date && t.type).map(t => ({
+                        id: String(t.id || ''),
+                        date: String(t.date || ''),
+                        type: String(t.type || ''),
+                        memo: String(t.memo || ''),
+                        chargeAmount: t.chargeAmount ? parseInt(t.chargeAmount) : undefined,
+                        mepoRate: t.mepoRate ? parseInt(t.mepoRate) : undefined,
+                        mesoAmount: t.mesoAmount ? parseFloat(t.mesoAmount) : undefined,
+                        convertCost: t.convertCost ? parseInt(t.convertCost) : undefined,
+                        waterRate: t.waterRate ? parseInt(t.waterRate) : undefined,
+                        sellMeso: t.sellMeso ? parseFloat(t.sellMeso) : undefined,
+                        salesAmount: t.salesAmount ? parseInt(t.salesAmount) : undefined
+                    }));
+                    // 로컬 스토리지에도 저장
+                    localStorage.setItem('ms-transactions', JSON.stringify(transactions));
                     console.log('Google Sheets 데이터 사용:', transactions);
                 } else {
-                    console.log('Google Sheets가 비어있음, 로컬 데이터 유지');
+                    console.log('Google Sheets가 비어있음, 로컬 데이터 로드');
+                    const localData = localStorage.getItem('ms-transactions');
+                    if (localData) {
+                        transactions = JSON.parse(localData);
+                    }
                 }
                 updateDashboard();
             } catch (error) {
@@ -742,23 +761,35 @@
                 try {
                     console.log('삭제 전 거래 목록:', transactions);
                     console.log('삭제할 ID:', id, '타입:', typeof id);
-                    
+
                     // ID 타입 통일 (문자열로 변환)
                     const targetId = String(id);
-                    
+
                     // 로컬에서 삭제
                     const beforeCount = transactions.length;
                     transactions = transactions.filter(t => String(t.id) !== targetId);
                     const afterCount = transactions.length;
-                    
+
                     console.log('삭제 전 개수:', beforeCount, '삭제 후 개수:', afterCount);
-                    
+
                     // 로컬 스토리지에 저장
                     localStorage.setItem('ms-transactions', JSON.stringify(transactions));
-                    
+
                     // 대시보드 업데이트
                     updateDashboard();
-                    
+
+                    // Google Sheets에서 삭제 (백그라운드)
+                    fetch(`${GOOGLE_SHEETS_API_URL}?action=delete&id=${targetId}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'text/plain',
+                        }
+                    }).then(() => {
+                        console.log('Google Sheets 삭제 요청 완료');
+                    }).catch(error => {
+                        console.log('Google Sheets 삭제 요청 실패 (무시됨):', error);
+                    });
+
                     console.log('삭제 완료:', id);
                     alert('거래가 삭제되었습니다!');
                 } catch (error) {
