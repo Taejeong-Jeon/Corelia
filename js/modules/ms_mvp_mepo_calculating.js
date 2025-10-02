@@ -2,10 +2,17 @@ const MSMepoCalculating = (function() {
     let isInitialized = false;
 
     function initialize() {
+        console.log('MSMepoCalculating initialize called');
         const inputs = document.querySelectorAll('#ms-mepo-calculating input');
-        if (inputs.length === 0) return; // 요소가 없으면 종료
+        console.log('Found inputs:', inputs.length);
+
+        if (inputs.length === 0) {
+            console.log('No inputs found, returning');
+            return;
+        }
 
         if (!isInitialized) {
+            console.log('Adding event listeners');
             inputs.forEach(input => {
                 input.addEventListener('input', calculate);
             });
@@ -15,22 +22,37 @@ const MSMepoCalculating = (function() {
     }
 
     function calculate() {
+        console.log('MSMepoCalculating calculate called');
+
         // 입력값 가져오기
         const mepoRateInput = document.getElementById('mepo-rate');
         const waterRateInput = document.getElementById('water-rate-mepo');
         const purchasedMesoInput = document.getElementById('purchased-meso');
 
-        if (!mepoRateInput || !waterRateInput || !purchasedMesoInput) return;
+        console.log('Input elements:', {
+            mepoRate: mepoRateInput,
+            waterRate: waterRateInput,
+            purchasedMeso: purchasedMesoInput
+        });
 
-        const mepoRate = parseFloat(mepoRateInput.value) || 0; // 메포 시세 (1억당 원)
-        const waterRate = parseFloat(waterRateInput.value) || 0; // 물통 시세 (1억당 원)
-        const purchasedMeso = parseFloat(purchasedMesoInput.value) || 0; // 구매한 메소 (억)
+        if (!mepoRateInput || !waterRateInput || !purchasedMesoInput) {
+            console.log('Missing input elements');
+            return;
+        }
+
+        const mepoRate = parseFloat(mepoRateInput.value) || 0;
+        const waterRate = parseFloat(waterRateInput.value) || 0;
+        const purchasedMeso = parseFloat(purchasedMesoInput.value) || 0;
+
+        console.log('Input values:', { mepoRate, waterRate, purchasedMeso });
 
         // 계산
-        const cashUsed = (purchasedMeso * mepoRate); // 사용한 캐시 (원)
-        const cashReceived = (purchasedMeso * waterRate); // 받은 캐시 (원)
-        const profitLoss = cashReceived - cashUsed; // 손익 (원)
-        const profitRate = cashUsed > 0 ? ((profitLoss / cashUsed) * 100) : 0; // 수익률 (%)
+        const cashUsed = purchasedMeso * mepoRate;
+        const cashReceived = purchasedMeso * waterRate;
+        const profitLoss = cashReceived - cashUsed;
+        const profitRate = cashUsed > 0 ? ((profitLoss / cashUsed) * 100) : 0;
+
+        console.log('Calculated values:', { cashUsed, cashReceived, profitLoss, profitRate });
 
         // 결과 업데이트
         const cashUsedElement = document.getElementById('cash-used-mepo');
@@ -38,7 +60,17 @@ const MSMepoCalculating = (function() {
         const profitLossElement = document.getElementById('profit-loss-mepo');
         const profitRateElement = document.getElementById('profit-rate-mepo');
 
-        if (!cashUsedElement || !cashReceivedElement || !profitLossElement || !profitRateElement) return;
+        console.log('Output elements:', {
+            cashUsed: cashUsedElement,
+            cashReceived: cashReceivedElement,
+            profitLoss: profitLossElement,
+            profitRate: profitRateElement
+        });
+
+        if (!cashUsedElement || !cashReceivedElement || !profitLossElement || !profitRateElement) {
+            console.log('Missing output elements');
+            return;
+        }
 
         cashUsedElement.textContent = cashUsed.toLocaleString('ko-KR') + '원';
         cashReceivedElement.textContent = cashReceived.toLocaleString('ko-KR') + '원';
@@ -60,6 +92,8 @@ const MSMepoCalculating = (function() {
         } else {
             profitRateElement.style.color = '#6b7280';
         }
+
+        console.log('Display updated successfully');
     }
 
     return {
