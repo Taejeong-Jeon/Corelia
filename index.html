@@ -279,22 +279,24 @@
 
         // URL에서 섹션 읽기
         function getSectionFromURL() {
-            // 로컬 파일인지 확인
+            // hash가 있으면 hash 우선 (404 리다이렉트 후)
+            const hash = window.location.hash;
+            if (hash === '#AI') return 'ai-tools';
+            if (hash === '#MS-ACCOUNT') return 'ms-account';
+            if (hash === '#MS') return 'ms';
+
+            // 로컬 파일이면 여기서 종료
             if (window.location.protocol === 'file:') {
-                // 로컬에서는 hash 사용
-                const hash = window.location.hash;
-                if (hash === '#AI') return 'ai-tools';
-                if (hash === '#MS') return 'ms';
-                if (hash === '#MS-ACCOUNT') return 'ms-account';
-                return 'main';
-            } else {
-                // 온라인에서는 path 사용
-                const path = window.location.pathname;
-                if (path.includes('/AI')) return 'ai-tools';
-                if (path.includes('/MS-ACCOUNT')) return 'ms-account';
-                if (path.includes('/MS')) return 'ms';
                 return 'main';
             }
+
+            // 온라인에서는 path도 체크
+            const path = window.location.pathname;
+            if (path.includes('/AI')) return 'ai-tools';
+            if (path.includes('/MS-ACCOUNT')) return 'ms-account';
+            if (path.includes('/MS')) return 'ms';
+
+            return 'main';
         }
 
         // 페이지 로드 시 URL에 따라 섹션 설정
