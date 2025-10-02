@@ -92,6 +92,34 @@
 
             <!-- MS 홈 섹션 -->
             <div class="content-body hidden" id="ms">
+                <!-- 총 합산 요약 -->
+                <div class="total-summary-section">
+                    <h3>총 합산</h3>
+                    <div class="summary-cards">
+                        <div class="summary-card">
+                            <div class="summary-icon">💰</div>
+                            <div class="summary-content">
+                                <div class="summary-label">총 충전</div>
+                                <div class="summary-value" id="ms-total-charge-summary">0원</div>
+                            </div>
+                        </div>
+                        <div class="summary-card">
+                            <div class="summary-icon">💸</div>
+                            <div class="summary-content">
+                                <div class="summary-label">총 판매</div>
+                                <div class="summary-value" id="ms-total-sales-summary">0원</div>
+                            </div>
+                        </div>
+                        <div class="summary-card">
+                            <div class="summary-icon">📊</div>
+                            <div class="summary-content">
+                                <div class="summary-label">총 손익</div>
+                                <div class="summary-value" id="ms-total-profit-summary">0원</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="ai-tools-grid">
                     <div class="tool-card">
                         <div class="tool-icon">💰</div>
@@ -99,7 +127,7 @@
                         <p>메이플스토리 수익과 지출을 관리하고 월별 통계를 확인하세요</p>
                         <button class="tool-btn" onclick="showSection('ms-account'); updateURL('MS-ACCOUNT'); return false;">시작하기</button>
                     </div>
-                    
+
                     <div class="tool-card">
                         <div class="tool-icon">💹</div>
                         <h4>MVP작 계산기(아이템)</h4>
@@ -112,13 +140,6 @@
                         <h4>MVP작 계산기(메포)</h4>
                         <p>메포 거래 손익을 계산해보세요</p>
                         <button class="tool-btn" onclick="showSection('ms-mepo-calculating'); updateURL('MS-MEPO-CALCULATING'); return false;">시작하기</button>
-                    </div>
-
-                    <div class="tool-card">
-                        <div class="tool-icon">🎯</div>
-                        <h4>MS 목표</h4>
-                        <p>수익 목표 설정과 달성 현황을 관리하세요</p>
-                        <button class="tool-btn" onclick="alert('준비 중입니다!')">시작하기</button>
                     </div>
                 </div>
             </div>

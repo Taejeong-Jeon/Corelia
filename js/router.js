@@ -137,6 +137,13 @@ function showSection(sectionId, event) {
     document.getElementById('page-title').textContent = titles[sectionId].title;
     document.getElementById('page-subtitle').textContent = titles[sectionId].subtitle;
 
+    // MS 메인 섹션일 때 총 합산 업데이트
+    if (sectionId === 'ms') {
+        if (window.MSAccountBook && window.MSAccountBook.updateMSTotalSummary) {
+            window.MSAccountBook.updateMSTotalSummary();
+        }
+    }
+
     // MS 가계부 섹션일 때 데이터 로드
     if (sectionId === 'ms-account') {
         if (window.MSAccountBook && window.MSAccountBook.loadTransactions) {

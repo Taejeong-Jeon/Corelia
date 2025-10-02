@@ -49,11 +49,40 @@ const MSAccountBook = (function() {
 
         const totalProfit = totalSales - totalCharge;
 
-        // 총합 요약 업데이트
+        // 총합 요약 업데이트 (MS 가계부 섹션)
         document.getElementById('total-charge-summary').textContent = `${totalCharge.toLocaleString()}원`;
         document.getElementById('total-sales-summary').textContent = `${totalSales.toLocaleString()}원`;
 
         const profitElement = document.getElementById('total-profit-summary');
+        profitElement.textContent = `${totalProfit >= 0 ? '+' : ''}${totalProfit.toLocaleString()}원`;
+
+        // 손익에 따른 색상 변경
+        if (totalProfit > 0) {
+            profitElement.style.color = '#28a745'; // 초록색 (수익)
+        } else if (totalProfit < 0) {
+            profitElement.style.color = '#dc3545'; // 빨간색 (손해)
+        } else {
+            profitElement.style.color = '#6c757d'; // 회색 (손익 없음)
+        }
+    }
+
+    function updateMSTotalSummary() {
+        // 전체 거래 데이터 계산 (월별 제한 없음)
+        const totalCharge = transactions
+            .filter(t => t.type === 'charge')
+            .reduce((sum, t) => sum + (parseInt(t.chargeAmount) || 0), 0);
+
+        const totalSales = transactions
+            .filter(t => t.type === 'sell')
+            .reduce((sum, t) => sum + (parseInt(t.salesAmount) || 0), 0);
+
+        const totalProfit = totalSales - totalCharge;
+
+        // 총합 요약 업데이트 (MS 메인 섹션)
+        document.getElementById('ms-total-charge-summary').textContent = `${totalCharge.toLocaleString()}원`;
+        document.getElementById('ms-total-sales-summary').textContent = `${totalSales.toLocaleString()}원`;
+
+        const profitElement = document.getElementById('ms-total-profit-summary');
         profitElement.textContent = `${totalProfit >= 0 ? '+' : ''}${totalProfit.toLocaleString()}원`;
 
         // 손익에 따른 색상 변경
@@ -365,7 +394,8 @@ const MSAccountBook = (function() {
         loadTransactions: loadTransactions,
         changeMonth: changeMonth,
         toggleFields: toggleFields,
-        deleteTransaction: deleteTransaction
+        deleteTransaction: deleteTransaction,
+        updateMSTotalSummary: updateMSTotalSummary
     };
 })();
 
