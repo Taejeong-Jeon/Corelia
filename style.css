@@ -22,40 +22,40 @@ body {
 /* 햄버거 버튼 */
 .hamburger-btn {
     position: fixed;
-    top: 1.5rem;
-    left: 1.5rem;
+    top: 1rem;
+    left: 1rem;
     z-index: 1001;
-    width: 40px;
-    height: 40px;
-    background: rgba(255, 255, 255, 0.95);
+    width: 32px;
+    height: 32px;
+    background: rgba(255, 255, 255, 0.9);
     border: none;
-    border-radius: 8px;
+    border-radius: 6px;
     cursor: pointer;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    gap: 6px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    gap: 4px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     transition: all 0.3s ease;
 }
 
 .hamburger-btn:hover {
     background: white;
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .hamburger-btn span {
     display: block;
-    width: 20px;
+    width: 16px;
     height: 2px;
     background: #667eea;
-    border-radius: 2px;
+    border-radius: 1px;
     transition: all 0.3s ease;
 }
 
 .hamburger-btn.active span:nth-child(1) {
-    transform: rotate(45deg) translate(5px, 5px);
+    transform: rotate(45deg) translate(4px, 4px);
 }
 
 .hamburger-btn.active span:nth-child(2) {
@@ -63,7 +63,7 @@ body {
 }
 
 .hamburger-btn.active span:nth-child(3) {
-    transform: rotate(-45deg) translate(5px, -5px);
+    transform: rotate(-45deg) translate(4px, -4px);
 }
 
 /* 좌측 사이드바 */
