@@ -100,3 +100,6 @@ const MSMepoCalculating = (function() {
         initialize: initialize
     };
 })();
+
+// 전역으로 노출
+window.MSMepoCalculating = MSMepoCalculating;
