@@ -11,9 +11,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // 라우터 초기화
-    initializePage();
-
     // 모듈 초기화
     if (window.MSAccountBook) MSAccountBook.initialize();
     if (window.MSCalculatingMachine) MSCalculatingMachine.initialize();
@@ -21,4 +18,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (window.NovelGenerator) NovelGenerator.initialize();
     if (window.TistoryTitleGenerator) TistoryTitleGenerator.initialize();
     if (window.TistoryContentGenerator) TistoryContentGenerator.initialize();
+
+    // 라우터 초기화 (모듈 로드 후)
+    initializePage();
 });
