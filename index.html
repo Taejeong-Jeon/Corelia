@@ -432,7 +432,7 @@
         let currentYear = 2025;
         let currentMonth = 10;
         let transactions = [];
-        const GOOGLE_SHEETS_API_URL = 'https://script.google.com/macros/s/AKfycbxWsWXWIm0S0K4ev8NBQAP61Uw8z1PK9negEvvMZ-utXy431wIsJKdNmgCZaCjxH-mKJQ/exec';
+        const GOOGLE_SHEETS_API_URL = 'https://script.google.com/macros/s/AKfycbw1opjX7I0Wpm9Z9p9sW4tG1ujzT2fd6PP-HKzbn84PGU7S_pzONmCR8mfPwrB6N3eN1Q/exec';
 
         // 거래 유형에 따른 필드 표시/숨김
         function toggleFields() {
@@ -561,6 +561,7 @@
                 
                 const response = await fetch(GOOGLE_SHEETS_API_URL, {
                     method: 'POST',
+                    mode: 'no-cors',
                     headers: {
                         'Content-Type': 'application/json',
                     },
